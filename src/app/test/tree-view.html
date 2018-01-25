@@ -1,0 +1,931 @@
+<!--<div>
+        <h1>Create a Graph</h1>
+        <div class="alert alert-info" role="alert">
+            Click any pair of nodes to connect them with an edge
+        </div>
+        <vertex [value]="'A'"></vertex>
+        <table class="graph-table">
+            <tr>
+                <td><vertex [value]="'B'"></vertex><td><vertex [value]="'C'" ></vertex></td>
+            <tr>
+                <td><vertex [value]="'E'" ></vertex></td><td><vertex [value]="'F'" ></vertex></td>
+            </tr>
+            <tr>
+                <td><vertex [value]="'G'" ></vertex></td><td><vertex [value]="'H'" ></vertex></td><td><vertex [value]="'I'" ></vertex></td>
+            </tr>
+        </table>
+</div>
+-->
+
+<div class="row">
+	        
+<nav class="navbar navbar-default" *ngIf="selected != null;else other_nav" style="background:#36c615; color:white;">
+                    <div class="container-fluid">
+                        <div class="navbar-header">
+                        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                            <ul class="nav navbar-nav" >
+                            <li><a>Selected : {{selected}} </a></li>
+                            </ul>
+                        </div>
+                        </div>
+                    </div>
+                </nav>	
+<ng-template #other_nav >
+                                        
+<nav class="navbar navbar-default" >
+                    <div class="container-fluid">
+                        <div class="navbar-header">
+                        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                            <ul class="nav navbar-nav" *ngIf="selectedId && selectedName">
+                            <li><a>Selected : {{selectedId}} <br>name: {{selectedName}} </a></li>
+                            </ul>
+                        </div>
+                        </div>
+                    </div>
+                </nav>
+  
+</ng-template>	
+        <br>
+	<div  class="col-md-6" *ngIf="ClassificationFi == null" >
+		Données Filiale pas encore disponible
+	</div>
+	<div  class="col-md-6" *ngIf="ClassificationFi?.length > 0" style=" padding-left: 40px;">
+            <h3 class="card-header text-left">Données Filiale</h3>
+	    	
+	    <div class="z" style="overflow: auto; max-height:410px; float: left; clear: left;white-space: nowrap;">			
+
+		<ul>
+                    
+                    <span *ngFor="let cl of ClassificationFi">
+                    <!-- <div class="card card-inverse card-success mb-3 text-center"> -->
+                        
+                       <li style=" list-style: none;" class="list-group-item sortable">
+                           <span (click)="toggle(cl)" class="iconButton" [ngClass]='{"tree-node-no-children": !cl.showIcon}' >
+                                {{cl.icon}}
+                            </span>
+                            <span dnd-draggable [dragEnabled]="true" [dragData]="cl" (click)="getSelectedNode(cl.id, cl.name)">
+				 
+							<span *ngIf="idDragged == cl.id;else other_span" [ngStyle]="{'background-color' : color}">
+										<strong >=>{{cl.name }}</strong>
+							</span>
+										<ng-template #other_span>
+                                                 					<strong >=>{{cl.name }}</strong>
+                                        					</ng-template>
+						
+                               
+				
+
+                            </span>
+                        
+                            <div *ngIf="cl.expanded" >
+                                    
+                                <ul>
+                                    <li *ngFor="let cl2 of cl.classification" style=" list-style: none;">
+					<span *ngIf="cl2.classification?.length > 0;else other_cl2">
+                                        	<span (click)="toggle(cl2)" class="iconButton" [ngClass]='{"tree-node-no-children": !cl2.showIcon}' >
+                                               	 	{{cl2.icon}}
+                                       		 </span>
+					</span>
+					<ng-template #other_cl2 >
+                                                 <span (click)="toggle(cl2)"><img src="/assets/icons/icon-done.png" style=" width:14px; height:14px;"/></span>
+                                        </ng-template>	
+                                               <span dnd-draggable [dragEnabled]="true" [dragData]="cl2" (click)="getSelectedNode(cl2.id, cl2.name)">
+							<span *ngIf="idDragged == cl2.id;else other_span" [ngStyle]="{'background-color' : color}">
+										<strong>{{cl2.name }}</strong>
+							</span>
+										<ng-template #other_span>
+                                                 					<strong>{{cl2.name }}</strong>
+                                        					</ng-template>
+
+                                		
+
+                            			</span>
+			
+
+				<div *ngIf="cl2.expanded">
+					<!--INCLUDE MODELS IF EXISTS -->
+					
+					<span *ngIf="!cl2.classification?.length > 0">
+                                                                <ul *ngIf="cl2.models?.length > 0">
+								<span *ngIf="cl2.models?.length > 0">
+								<li *ngFor="let cl22 of cl2.models" style=" list-style: none;">
+		                                                  <span *ngIf="cl22.models?.length > 0;else other_content">
+								<span (click)="toggle(cl22)" class="iconButton" [ngClass]='{"tree-node-no-children": !cl3.showIcon}' >
+                                                                		{{cl22.icon}}
+                                                        		</span>
+                                                    		     </span>
+								    <ng-template #other_content>
+                                                   		<span (click)="toggle(cl22)"><img src="/assets/icons/model.png" style=" width:14px; height:14px;"/></span>
+                                                    		    </ng-template>
+                                                                    <span dnd-draggable [dragEnabled]="true" [dragData]="cl22" (click)="getSelectedNode(cl22.id, cl22.name)">
+                                                                            <strong>{{cl22.name }}</strong>
+                                                                    </span>
+								 	<!-- PRODUCTS -->
+							<div *ngIf="cl22.expanded">
+                                                        <ul>
+                                                            <li *ngFor="let product of cl22.products" style=" list-style: none;">
+		                                              <span *ngIf="cl22.products?.length > 0">
+								<span (click)="toggle(product)" class="iconButton" [ngClass]='{"tree-node-no-children": !cl22.showIcon}' >
+                                                      		{{product.icon}}
+                                                       		</span>
+                                              		     </span>
+								<span  dnd-draggable [dragEnabled]="true" [dragData]="product" (click)="getSelectedNode(product.id, cl2.name)" >
+                                    					 <span *ngIf="product.mapped ;else other_span" >
+										<img src="/assets/icons/mapping.png" style=" width:14px; height:14px;"/>
+										<strong [matTooltip]="product.shortdesc" [matTooltipPosition]="positionprod">{{product.name }}</strong>
+									</span>                 
+                                                             	</span> 
+								<ng-template #other_span>
+                                             <span dnd-draggable [dragEnabled]="true" [dragData]="product" (click)="getSelectedNode(product.id, cl2.name)"><strong [matTooltip]="product.shortdesc" [matTooltipPosition]="positionprod">{{product.name }}</strong></span>
+                                        			</ng-template>
+								
+								<!-- ADD Attribut last LEVEL -->
+								
+							<div *ngIf="product.expanded">
+					<span *ngIf="product.techattrs?.length > 0;else other_attributs1" >
+					<ul><li style=" list-style: none;" >
+						<span class="iconButton" (click)="toggle2(product.techattrs)" [ngClass]='{"tree-node-no-children": !product.techattrs.showIcon}' >
+                                                      	{{product.techattrs.icon}}<img src="/assets/icons/notImportant-Icon.png" style=" width:14px; height:14px;"/>
+                                                </span>
+						<strong>Attributs</strong>
+					
+								<div *ngIf="product.techattrs.expanded  ">
+                                                        <ul>
+                                                            <li *ngFor="let attr2 of product.techattrs" style=" list-style: none;">
+		                                              <span *ngIf="product.techattrs?.length > 0;else other_content">
+								<span *ngIf="idDragged2 == attr2.id">
+										<img src="/assets/icons/icon-done.png" style=" width:14px; height:14px;"/>
+									</span>
+
+								<span class="iconButton" [ngClass]='{"tree-node-no-children": !attr2.showIcon}' >
+                                                      	{{attr2.icon}}<img src="/assets/icons/Important-Icon.png" style=" width:14px; height:14px;"/>
+								<span>
+                                                                    <span dnd-draggable [dragEnabled]="true" [dragData]="attr2.id" [dropZones]="['mapping2']">
+                                                                       <strong>{{attr2.name }}</strong>
+								
+                                                                    </span> 
+								</span>
+                                                       		</span>
+                                              		     </span>
+							     <ng-template #other_content>
+                                                        	<img src="/assets/icons/Important-Icon.png" style=" width:14px; height:14px;"/>
+                                                             </ng-template>
+								
+                                                             </li>
+                                                        </ul>
+                                                        </div>
+						</li></ul>
+					</span>
+							<ng-template #other_attributs1>
+                                                        	None
+                                                        </ng-template>
+							</div>
+
+							<!-- ATTRIBUT LAST LEVEL -->
+
+                                                             </li>
+                                                        </ul>
+                                                        </div>
+							<!-- PRODUCTS level 2-->
+								</li></span></ul>
+					</span>
+					
+					<!---->
+                                            <ul>
+                                                <li *ngFor="let cl3 of cl2.classification" style=" list-style: none;">
+                                                    <span *ngIf="cl3.classification?.length > 0;else other_content">
+                                                        <span (click)="toggle(cl3)" class="iconButton" [ngClass]='{"tree-node-no-children": !cl3.showIcon}' >
+                                                                {{cl3.icon}}
+                                                        </span>
+                                                    </span>
+                                                    <ng-template #other_content>
+                                                        <span (click)="toggle(cl3)">
+								<img src="/assets/icons/icon-done.png" style=" width:14px; height:14px;"/>
+							</span>
+                                                    </ng-template>
+                                                    
+                                                    
+                                                    
+                                                        <span dnd-draggable [dragEnabled]="true" [dragData]="cl3" (click)="getSelectedNode(cl3.id, cl3.name)"> 
+									<span *ngIf="idDragged == cl3.id;else other_span" [ngStyle]="{'background-color' : color}">
+										<strong>{{cl3.name }}</strong>
+									</span>
+										<ng-template #other_span>
+                                                 					<strong>{{cl3.name }}</strong>
+                                        					</ng-template>
+
+                                		
+
+                            				</span>
+
+                                                                
+                                                        
+                                                        <div *ngIf="cl3.expanded">
+								<span *ngIf="!cl3.classification?.length > 0">
+                                                                <ul *ngIf="cl3.models?.length > 0">
+								<span >
+								<li *ngFor="let cl4 of cl3.models" style=" list-style: none;">
+		                                                  <span *ngIf="cl4.products?.length > 0;else other_content">
+								<span (click)="toggle(cl4)" class="iconButton" [ngClass]='{"tree-node-no-children": !cl4.showIcon}' >
+                                                                		{{cl4.icon}} 
+									<img src="/assets/icons/model.png" style=" width:14px; height:14px;"/>
+                                                        		</span>
+                                                    		     </span>
+								    <ng-template #other_content>
+                                                   		<span (click)="toggle(cl4)"><img src="/assets/icons/model.png" style=" width:14px; height:14px;"/></span>
+                                                    		    </ng-template>
+                                                                    
+
+							<span dnd-draggable [dragEnabled]="true" [dragData]="cl4" (click)="getSelectedNode(cl4.id, cl4.name)"> 
+									<span>
+                       		                                          <strong>{{cl4.name }}</strong>
+                                                                    	</span>
+										
+
+                                		
+
+                            				</span>
+
+
+							<!-- PRODUCTS -->
+							<div *ngIf="cl4.expanded">
+                                                        
+                                                        <ul>
+                                                            <li *ngFor="let cl44 of cl4.products" style=" list-style: none;">
+		                                              <span *ngIf="cl4.products?.length > 0;else other_content">
+								<span (click)="toggle(cl44)" class="iconButton" [ngClass]='{"tree-node-no-children": !cl44.showIcon}' >
+                                                      	{{cl44.icon}}
+                                                       		</span>
+                                              		     </span>
+							     <ng-template #other_content>
+                                                        	<img src="/assets/icons/product-icon.png" style=" width:10px; height:10px;"/>
+                                                             </ng-template>
+                                                                    <span dnd-draggable [dragEnabled]="true" [dragData]="cl44" (click)="getSelectedNode(cl44.id, cl44.name)">
+
+									<span *ngIf="cl44.mapped ;else other_span" >
+										<img src="/assets/icons/mapping.png" style=" width:14px; height:14px;"/>
+										<strong [matTooltip]="cl44.shortdesc" [matTooltipPosition]="positionprod">{{cl44.name }}</strong>
+									</span>
+										<ng-template #other_span>
+                                                 					<strong [matTooltip]="cl44.shortdesc" [matTooltipPosition]="positionprod"> {{cl44.name }}</strong>
+                                        					</ng-template>
+
+
+                                                
+                                                                    </span> 
+								<!-- HEEEEEEEEEEEEEEEEEEEEEERE --> 
+								<!-- ADD Attribut last LEVEL -->
+								
+							<div *ngIf="cl44.expanded">
+
+						
+                                                      	
+                                               
+						
+
+
+						<span *ngIf="cl44.techattrs?.length > 0;else other_attributs" >
+				<ul><li style=" list-style: none;" >
+				<span class="iconButton" (click)="toggle2(cl44.techattrs)" [ngClass]='{"tree-node-no-children": !cl44.techattrs.showIcon}' >
+					{{cl44.techattrs.icon}}
+				 </span>
+				<strong>Attributs</strong>
+				
+								<div *ngIf="cl44.techattrs.expanded  ">
+                                                        <ul *ngIf="cl44.techattrs?.length > 0">
+                                                            <li *ngFor="let attr of cl44.techattrs" style=" list-style: none;">
+		                                              <span *ngIf="cl44.techattrs?.length > 0;else other_content">
+								<span class="iconButton" [ngClass]='{"tree-node-no-children": !attr.showIcon}' >
+								<span *ngIf="idDragged2 == attr.id">
+										<img src="/assets/icons/icon-done.png" style=" width:14px; height:14px;"/>
+									</span>
+                                                      	{{attr.icon}}<img src="/assets/icons/Important-Icon.png" style=" width:14px; height:14px;"/>
+									<span>
+                                                                    <span dnd-draggable [dragEnabled]="true" [dragData]="attr.id" [dropZones]="['mapping2']">
+                                                                            <strong>{{attr.name }}</strong>
+
+                                                                    </span> 
+								</span>
+                                                       		</span>
+                                              		     </span>
+							     <ng-template #other_content>
+                                                        	None
+                                                             </ng-template>
+                                                                   
+                                                             </li>
+                                                        </ul>
+                                                        </div>
+				</li></ul>
+							</span>
+							<ng-template #other_attributs>
+                                                        	None-
+                                                             </ng-template>
+							</div>
+							<!-- ATTRIBUT LAST LEVEL -->
+
+                                                             </li>
+                                                        </ul>
+							</div>                                                        
+                                                        
+						<!-- PRODS --> 
+
+								</li></span></ul></span>
+								
+									<ul *ngIf="cl3.classification?.length > 0">
+
+
+                                                                    <li *ngFor="let cl4 of cl3.classification" style=" list-style: none;">
+		                                                    <span *ngIf="cl4.classification?.length > 0;else other_content">
+									<span (click)="toggle(cl4)" class="iconButton" [ngClass]='{"tree-node-no-children": !cl3.showIcon}' >
+                                                                		{{cl4.icon}}
+                                                        		</span>
+                                                    		     </span>
+								    <ng-template #other_content>
+                                                        		<span (click)="toggle(cl4)">
+										<img src="/assets/icons/icon-done.png" style=" width:14px; height:14px;"/>
+									</span>
+                                                    		    </ng-template>
+                                                                    <span dnd-draggable [dragEnabled]="true" [dragData]="cl4" (click)="getSelectedNode(cl4.id, cl4.name)">
+									<span *ngIf="idDragged == cl4.id;else other_span" [ngStyle]="{'background-color' : color}">
+										<strong>{{cl4.name }}</strong>
+									</span>
+										<ng-template #other_span>
+                                                 					<strong>{{cl4.name }}</strong>
+                                        					</ng-template>
+                                                                            
+                                                                    </span> 
+								<!-- PRODUCTS -->
+							<div *ngIf="cl4.expanded">
+                                                        
+                                                        <ul>
+                                                            <li *ngFor="let cl44 of cl4.products" style=" list-style: none;">
+		                                              <span *ngIf="cl44.products?.length > 0;else other_content">
+								<span (click)="toggle(cl44)" class="iconButton" [ngClass]='{"tree-node-no-children": !cl44.showIcon}' >
+                                                      		{{cl44.icon}}
+                                                       		</span>
+                                              		     </span>
+							     <ng-template #other_content>
+                                                        	<img src="/assets/icons/notImportant.png" style=" width:14px; height:14px;"/>
+                                                             </ng-template>
+                                                                    <span>
+                                                                            <strong>{{cl44.name }}</strong>
+                                                                    </span> 
+                                                             </li>
+                                                        </ul>
+                                                        
+                                                        
+						<!-- PRODS -->
+						
+                                                                <ul>
+                                                                    <li *ngFor="let cl5 of cl4.models" style=" list-style: none;">
+		                                                    <span *ngIf="cl5.models?.length > 0;else other_content">
+									<span (click)="toggle(cl5)" class="iconButton" [ngClass]='{"tree-node-no-children": !cl5.showIcon}' >
+                                                                		{{cl5.icon}}
+                                                        		</span>
+                                                    		     </span>
+								    <ng-template #other_content>
+                                                        		<span (click)="toggle(cl5)"><img src="/assets/icons/model.png" style=" width:14px; height:14px;"/></span>
+                                                    		    </ng-template>
+									<span dnd-draggable [dragEnabled]="true" [dragData]="cl5" (click)="getSelectedNode(cl5.id, cl5.name)">
+                                                                   		 <span >
+                                                                            		<strong>{{cl5.name }}</strong>
+                                                                    		</span> 
+									</span>
+							<!-- PRODUCTS -->
+							<div *ngIf="cl5.expanded">
+                                                        <ul>
+                                                            <li *ngFor="let cl6 of cl5.products" style=" list-style: none;">
+								<span *ngIf="cl5.products?.length > 0" >
+					<span (click)="toggle(cl6)" class="iconButton" [ngClass]='{"tree-node-no-children": !cl6.showIcon}' >{{cl6.icon}}</span>
+		                                              <!--<span *ngIf="cl5.products?.length > 0;else other_content">
+								<span (click)="toggle(cl6)" class="iconButton" [ngClass]='{"tree-node-no-children": !cl6.showIcon}' >
+                                                      		<img src="/assets/icons/product-icon.png" style=" width:10px; height:10px;"/>
+                                                       		</span>
+                                              		     </span>
+							     <ng-template #other_content>
+                                                        	<img src="/assets/icons/product-icon.png" style=" width:10px; height:10px;"/>
+                                                             </ng-template>-->
+                                                                    <span dnd-draggable [dragEnabled]="true" [dragData]="cl6" (click)="getSelectedNode(cl6.id, cl6.name)">
+									<span *ngIf="cl6.mapped  ;else other_span">
+										<img src="/assets/icons/mapping.png" style=" width:14px; height:14px;"/>
+										<strong [matTooltip]="cl6.shortdesc" [matTooltipPosition]="positionprod">{{cl6.name }}</strong>
+									</span>
+										<ng-template #other_span>
+                                                 					<strong [matTooltip]="cl6.shortdesc" [matTooltipPosition]="positionprod">{{cl6.name }}</strong>
+                                        					</ng-template>
+
+                                                                    </span> 
+								<!-- ADD Attribut last LEVEL -->
+								</span>
+							<div *ngIf="cl6.expanded">
+
+					
+
+
+							 <span *ngIf="cl6.techattrs?.length > 0;else other_content" >
+
+					<ul><li style=" list-style: none;" >
+						<span class="iconButton" (click)="toggle2(cl6.techattrs)" [ngClass]='{"tree-node-no-children": !cl6.techattrs.showIcon}' >
+                                                      	{{cl6.techattrs.icon}}
+                                                </span>
+						<strong>Attributs</strong>
+					
+								<div *ngIf="cl6.techattrs.expanded">
+							 <ul>
+                                                            <li *ngFor="let attr of cl6.techattrs" style=" list-style: none;">
+		                                              <span *ngIf="cl6.techattrs?.length > 0;else other_content">
+						<span class="iconButton" [ngClass]='{"tree-node-no-children": !attr.showIcon}' dnd-draggable [dragEnabled]="true" [dragData]="attr.id" [dropZones]="['mapping2']">
+                                                      			<span *ngIf="idDragged2 == attr.id">
+										<img src="/assets/icons/icon-done.png" style=" width:14px; height:14px;"/>
+									</span>
+                                                                            {{attr.icon}}<img src="/assets/icons/Important-Icon.png" style=" width:14px; height:14px;"/>
+									<strong>{{attr.name }}</strong>
+								
+								
+                                                       		</span>
+                                              		     </span>
+							     <ng-template #other_content>
+                                                        	
+								<span dnd-draggable [dragEnabled]="true" [dragData]="attr.id" [dropZones]="['mapping2']">
+                                                                
+                                                                            <img src="/assets/icons/Important-Icon.png" style=" width:14px; height:14px;"/><strong>{{attr.name }}</strong>
+								 
+								</span>
+                                                             </ng-template>
+                                                                    
+                                                             </li>
+                                                        </ul>
+
+								</div></li></ul>
+							</span>
+                                                        
+                                                        </div>
+
+							<!-- ATTRIBUT LAST LEVEL -->
+                                                             </li>
+                                                        </ul>
+                                                        </div>
+                                                                    </li>
+                                                                </ul>
+                                                        </div>
+                                                									
+
+                                                                    </li>
+                                                                </ul>
+                                                        </div>
+                                                </li>
+                                            </ul>
+                                        </div>
+
+                                        
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+                    </span>
+                </ul>
+
+	</div>
+
+	</div>
+	<div  class="col-md-6"   *ngIf="loading == false" >
+		Chargement SFA Manutan
+	</div>
+        <div  class="col-md-6"   *ngIf="loading == true" >
+            <h3 class="card-header text-left">Manutan GMC</h3>
+            <!--<div class="card-block" style="overflow-y: scroll; height:350px;">-->
+            <div class="z" style="overflow: auto; max-height:410px; float: left; clear: left;white-space: nowrap;">		
+                <ul>
+                    
+                    <span *ngFor="let cl of classification">
+                    <!-- <div class="card card-inverse card-success mb-3 text-center"> -->
+                        
+                       <li style=" list-style: none;" class="list-group-item sortable">
+                           <span class="iconButton" [ngClass]='{"tree-node-no-children": !cl.showIcon}' >
+                                {{cl.icon}}
+                            </span>
+                            <span (click)="toggle(cl)" [matTooltip]="cl.MetaData['0'].Value['1']._" [matTooltipPosition]="position">
+                                <strong>{{cl.Name["0"] }}</strong>
+                                <!-- {{cl.Metadata["0"]["@"].ID cl.attribut.ID}} -->
+                            </span>
+                        
+                            <div *ngIf="cl.expanded" >
+                                    
+                                <ul>
+                                    <li *ngFor="let cl2 of cl.Classification" style=" list-style: none;">
+					<span *ngIf="cl2.Classification;else other_cl2">
+                                        	<span class="iconButton" [ngClass]='{"tree-node-no-children": !cl2.showIcon}' >
+                                               	 	{{cl2.icon}}
+                                       		 </span>
+					</span>
+					<ng-template #other_cl2>
+                                                 <img src="/assets/icons/icon-done.png" style=" width:10px; height:10px;"/>
+                                        </ng-template>	
+                                        <span *ngIf="cl2.MetaData">
+                                            <span (click)="toggle(cl2)" [matTooltip]="cl2.MetaData['0'].Value['0']._" [matTooltipPosition]="position">
+                                                    <strong>{{cl2.Name["0"] }}</strong>
+                                            </span> 
+                                        </span> 
+                                        <span *ngIf="!cl2.MetaData">
+                                                <span (click)="toggle(cl2)" matTooltip="Manque le Metadata pour cette classification" [matTooltipPosition]="position">
+                                                        <strong>{{cl2.Name["0"] }}</strong>
+                                                </span> 
+                                            </span>        
+                                        <div *ngIf="cl2.expanded">
+						
+				<div *ngIf="cl2.product['0']">
+		<!--<span dnd-droppable (onDropSuccess)="transferDataSuccess($event , cl2.product['0'])" [matTooltip]="cl2.product['0'].attribut.ID" [matTooltipPosition]="position" >-->
+					<span dnd-droppable (onDropSuccess)="transferDataSuccess($event , cl2.product['0'])">
+						<span *ngIf="cl2.product.mapped;else other_span" [ngStyle]="{'background-color' : color}">
+							<img src="/assets/icons/mapping.png" style=" width:14px; height:14px;"/>{{cl2.product["0"].Name["0"]}}
+						</span>
+										<ng-template #other_span>
+                                                 					<span *ngIf="cl2.product['0'].Name">{{cl2.product["0"].Name["0"]}}</span>
+                                        					</ng-template>
+		</span>
+
+								<div *ngIf="cl2.product['0']">
+									<span *ngIf="cl2.product['0'].AttributeLink?.length > 0;else other_content" >
+					<ul><li style=" list-style: none;" (click)="toggle(cl2.product['0'].AttributeLink)"><strong>Attributs</strong></li></ul>
+								<ul *ngIf="cl2.product['0'].AttributeLink.expanded"> 
+
+
+                                                                    <li *ngFor="let att of cl2.product['0'].AttributeLink" style=" list-style: none;">
+									<span *ngIf="idDropped2 == att.attribut.AttributeID && att.attribut.Mandatory">
+											<img src="/assets/icons/icon-done.png" style=" width:14px; height:14px;"/>
+										</span>
+                                                                       <img *ngIf = "att.attribut.Mandatory;else other_icon" src="/assets/icons/Important-Icon.png" style=" width:15px; height:15px;"/>
+									<ng-template #other_icon>
+									<span *ngIf="idDropped2 == att.attribut.AttributeID">
+											<img src="/assets/icons/icon-done.png" style=" width:14px; height:14px;"/>
+										</span>
+                                                 			<img  src="/assets/icons/notImportant.png" style=" width:14px; height:14px;"/>
+                                        				</ng-template>	
+								<span *ngIf = "att.message;else other_meta">
+						<span dnd-droppable class="panel panel-info" [dropZones]="['mapping2']" (onDropSuccess)= "transferDataSuccess2($event , att.attribut.AttributeID)">
+                     							<span  (click)="toggle(att)" [matTooltip]="att.message" [matTooltipPosition]="position">
+                                                                            <strong>
+										
+										 {{att.name }}
+										 <!--{{att.attribut.AttributeID }}-->
+									    </strong>
+                                                                        </span> 
+						</span>
+								</span>	
+						<ng-template #other_meta>
+                                               <span  (click)="toggle(att)" dnd-droppable class="panel panel-info" [dropZones]="['mapping2']" (onDropSuccess)= "transferDataSuccess2($event , att.attribut.AttributeID)">
+									
+									<strong (click)="toggle(att)" >
+										<span *ngIf="idDropped2 == att.attribut.AttributeID">
+											<img src="/assets/icons/icon-done.png" style=" width:10px; height:10px;"/>
+										</span>
+										 {{att.name }}
+										 <!--{{att.attribut.AttributeID }}-->
+									    </strong>
+					</span>
+		                                        	</ng-template>
+
+
+                                                                    </li>
+                                                                </ul>
+								</span></div>
+
+
+
+								<ul *ngIf ="cl2.product">
+                                                                    <li *ngFor="let pr2 of cl2.product.Product" style=" list-style: none;">
+                                                                        <img src="/assets/icons/icon-done.png" style=" width:10px; height:10px;"/>
+                                                                        <span (click)="toggle(pr2)" *ngIf = "pr2.Name;else other_name">
+                                                                            <strong>{{pr2.Name["0"] }}</strong>
+                                                                        </span> 
+									<ng-template #other_name>
+									<span>
+                                                                            <strong>----</strong>
+                                                                        </span> 
+                                                    			</ng-template>
+
+						<div *ngIf="pr2.expanded">
+								<ul *ngIf = " pr2.Product">
+                                                                    <li *ngFor="let pr5 of pr2.Product" style=" list-style: none;">
+                                                                        <img src="/assets/icons/icon-done.png" style=" width:10px; height:10px;"/>
+                                                                        <span (click)="toggle(pr5)" *ngIf = "pr5.Name;else other_name">
+                                                                            <strong>{{pr5.Name["0"] }}</strong>
+                                                                        </span> 
+									<ng-template #other_name>
+									<span>
+                                                                            <strong>----</strong>
+                                                                        </span> 
+                                                    			</ng-template>
+									<!--<div *ngIf="cl4.expanded">
+										<span *ngIf="cl4.product">
+										{{cl4.product.Name["0"]}}
+										</span>
+									</div>-->
+                                                                    </li>
+									
+                                                                </ul>
+							</div>
+
+									<!--<div *ngIf="cl4.expanded">
+										<span *ngIf="cl4.product">
+										{{cl4.product.Name["0"]}}
+										</span>
+									</div>-->
+                                                                    </li>
+									
+                                                                </ul>
+						</div>
+                                            <ul>
+                                                <li *ngFor="let cl3 of cl2.Classification" style=" list-style: none;">
+                                                    <span *ngIf="cl3.Classification;else other_content">
+                                                        <span class="iconButton" [ngClass]='{"tree-node-no-children": !cl3.showIcon}' >
+                                                                {{cl3.icon}}
+                                                        </span>
+                                                    </span>
+                                                    <ng-template #other_content>
+                                                        <img src="/assets/icons/icon-done.png" style=" width:10px; height:10px;"/>
+                                                    </ng-template>
+                                                    
+                                                    
+                                                    
+                                                        <span (click)="toggle(cl3)">
+                                                                <strong>{{cl3.Name["0"] }}</strong>
+                                                        </span> 
+                                                        <div *ngIf="cl3.expanded">
+								
+		<!--<span *ngIf="cl3.product" dnd-droppable (onDropSuccess)="transferDataSuccess($event , cl3.product['0'])" [matTooltip]="cl3.product['0'].attribut.ID" [matTooltipPosition]="position" >-->
+<span *ngIf="cl3.product['0']" dnd-droppable (onDropSuccess)="transferDataSuccess($event , cl3.product['0'])">				
+						<span *ngIf="cl3.product.mapped;else other_span" [ngStyle]="{'background-color' : color}">
+										<img src="/assets/icons/mapping.png" style=" width:14px; height:14px;"/>{{cl3.product["0"].Name["0"]}}
+										</span>
+										<ng-template #other_span>
+                                                 					<span *ngIf="cl3.product['0'].Name">{{cl3.product["0"].Name["0"]}}</span>
+                                        					</ng-template>
+							</span>
+								
+									<div *ngIf="cl3.product['0']">
+                                                                    
+
+                         <span *ngIf="cl3.product['0'].AttributeLink?.length > 0;else other_content" >
+					<ul><li style=" list-style: none;" (click)="toggle(cl3.product['0'].AttributeLink)"><strong>Attributs</strong></li></ul>
+								<div *ngIf="cl3.product['0'].AttributeLink.expanded">  
+			<ul>
+		<li *ngFor="let att of cl3.product['0'].AttributeLink" style=" list-style: none;">
+									<span *ngIf="idDropped2 == att.attribut.AttributeID && att.attribut.Mandatory">
+											<img src="/assets/icons/icon-done.png" style=" width:14px; height:14px;"/>
+										</span>
+                                                                     <img *ngIf = "att.attribut.Mandatory;else other_icon" src="/assets/icons/Important-Icon.png" style=" width:15px; height:15px;"/>
+									<ng-template #other_icon>
+                                                 			<span *ngIf="idDropped2 == att.attribut.AttributeID">
+											<img src="/assets/icons/icon-done.png" style=" width:14px; height:14px;"/>
+										</span>
+									<img  src="/assets/icons/notImportant.png" style=" width:14px; height:14px;"/>
+                                        				</ng-template>	            
+		<span *ngIf = "att.MetaData;else other_meta">
+
+			<span dnd-droppable class="panel panel-info" [dropZones]="['mapping2']" (onDropSuccess)= "transferDataSuccess2($event , att.attribut.AttributeID)">
+	 		<span (click)="toggle(att)" [matTooltip]="att.MetaData['0'].Value['0']._" [matTooltipPosition]="position">
+                           <strong>
+										 {{att.name }}
+										 <!--{{att.attribut.AttributeID }}--></strong>
+                  	</span> 
+			</span>
+		</span>
+					<ng-template #other_meta>
+						<span dnd-droppable class="panel panel-info" [dropZones]="['mapping2']" (onDropSuccess)= "transferDataSuccess2($event , att.attribut.AttributeID)">
+                                                 <strong>{{att.name }}
+										 <!--{{att.attribut.AttributeID }}--></strong>
+						</span>
+                                        	</ng-template>
+									
+                                                                    </li></ul>
+                                                                </div>
+
+								</span></div>
+								<ul *ngIf = " cl3.product">
+                                                                    <li *ngFor="let pr1 of cl3.product.Product" style=" list-style: none;">
+                                                                        <img src="/assets/icons/icon-done.png" style=" width:10px; height:10px;"/>
+                                                                        <span (click)="toggle(pr1)" *ngIf = "pr1.Name;else other_name">
+                                                                            <strong>{{pr1.Name["0"] }}</strong>
+                                                                        </span> 
+									<ng-template #other_name>
+									<span>
+                                                                            <strong>----</strong>
+                                                                        </span> 
+                                                    			</ng-template>
+						<div *ngIf="pr1.expanded">
+								<ul *ngIf = " pr1.Product">
+                                                                    <li *ngFor="let pr4 of pr1.Product" style=" list-style: none;">
+                                                                        <img src="/assets/icons/icon-done.png" style=" width:10px; height:10px;"/>
+                                                                        <span (click)="toggle(pr4)" *ngIf = "pr4.Name;else other_name">
+                                                                            <strong>{{pr4.Name["0"] }}</strong>
+                                                                        </span> 
+									<ng-template #other_name>
+									<span>
+                                                                            <strong>----</strong>
+                                                                        </span> 
+                                                    			</ng-template>
+									<!--<div *ngIf="cl4.expanded">
+										<span *ngIf="cl4.product">
+										{{cl4.product.Name["0"]}}
+										</span>
+									</div>-->
+                                                                    </li>
+									
+                                                                </ul>
+							</div>
+									<!--<div *ngIf="cl4.expanded">
+										<span *ngIf="cl4.product">
+										{{cl4.product.Name["0"]}}
+										</span>
+									</div>-->
+                                                                    </li>
+									
+                                                                </ul>
+                                                                <ul *ngIf="cl3.Classification">
+                                                                    <li *ngFor="let cl4 of cl3.Classification" style=" list-style: none;">
+                                                                        <img src="/assets/icons/icon-done.png" style=" width:10px; height:10px;"/>
+                                                                        <span (click)="toggle(cl4)">
+                                                                            <strong>{{cl4.Name["0"] }}</strong>
+                                                                        </span> 
+									
+						<div *ngIf="cl4.expanded">
+					
+		<!--<span *ngIf="cl4.product" dnd-droppable (onDropSuccess)="transferDataSuccess($event , cl4.product['0'])" [matTooltip]="cl4.product['0'].attribut.ID" [matTooltipPosition]="position" >-->
+	<span *ngIf="cl4.product" dnd-droppable (onDropSuccess)="transferDataSuccess($event , cl4.product['0'])" >	
+								<span *ngIf="cl4.product.mapped;else other_span" [ngStyle]="{'background-color' : color}">
+										<img src="/assets/icons/mapping.png" style=" width:14px; height:14px;"/>{{cl4.product["0"].Name["0"]}}
+										</span>
+										<ng-template #other_span>
+                                    							<span *ngIf="cl4.product['0'].Name">{{cl4.product["0"].Name["0"]}}</span>
+                                        					</ng-template>
+			</span>
+			<span *ngIf="cl4.product['0'].AttributeLink?.length > 0;else other_content" >
+					<ul><li style=" list-style: none;" (click)="toggle(cl4.product['0'].AttributeLink)"><strong>Attributs</strong></li></ul>
+								<div *ngIf="cl4.product['0'].AttributeLink.expanded">
+
+
+								<ul>
+                                                                    <li *ngFor="let att of cl4.product['0'].AttributeLink" style=" list-style: none;">
+									<span *ngIf="idDropped2 == att.attribut.AttributeID && att.attribut.Mandatory">
+											<img src="/assets/icons/icon-done.png" style=" width:14px; height:14px;"/>
+										</span>
+                                                                      
+									<img *ngIf = "att.attribut.Mandatory;else other_icon" src="/assets/icons/Important-Icon.png" style=" width:15px; height:15px;"/>
+									<ng-template #other_icon>
+                                                 			<span *ngIf="idDropped2 == att.attribut.AttributeID">
+											<img src="/assets/icons/icon-done.png" style=" width:14px; height:14px;"/>
+										</span>
+									<img  src="/assets/icons/notImportant.png" style=" width:14px; height:14px;"/>
+                                        				</ng-template>
+
+
+<span dnd-droppable class="panel panel-info" [dropZones]="['mapping2']" (onDropSuccess)= "transferDataSuccess2($event , att.attribut.AttributeID)">
+	 								<span *ngIf="att.MetaData;else other_meta">
+										<span (click)="toggle(att)" [matTooltip]="att.MetaData['0'].Value['0']._" [matTooltipPosition]="position">
+                           							<strong>
+										 {{att.name }}
+										 <!--{{att.attribut.AttributeID }}--></strong>
+                  								</span> 
+									</span>
+									<ng-template #other_meta>
+                                                 			<strong>
+										 {{att.name }}
+										 <!--{{att.attribut.AttributeID }}--></strong>
+                                        				</ng-template>
+</span>
+	
+                                                                       
+									
+									<!--<div *ngIf="cl4.expanded">
+										<span *ngIf="cl4.product">
+										{{cl4.product.Name["0"]}}
+										</span>
+									</div>-->
+                                                                    </li>
+									
+                                                                </ul>
+
+							</div>
+						</span>
+									<!--<ul *ngIf = " cl4.product">
+                                                                    <li *ngFor="let pr of cl4.product.Product" style=" list-style: none;">
+                                                                        <img src="/assets/icons/icon-done.png" style=" width:10px; height:10px;"/>
+                                                                        <span (click)="toggle(pr)" *ngIf = "pr.Name;else other_name">
+                                                                            <strong>{{pr.Name["0"] }}</strong>
+                                                                        </span> 
+									<ng-template #other_name>
+									<span>
+                                                                            <strong>----</strong>
+                                                                        </span> 
+                                                    			</ng-template>
+									
+							<div *ngIf="pr.expanded">
+								<ul *ngIf = " pr.Product">
+                                                                    <li *ngFor="let pr3 of pr.Product" style=" list-style: none;">
+                                                                        <img src="/assets/icons/icon-done.png" style=" width:10px; height:10px;"/>
+                                                                        <span (click)="toggle(pr3)" *ngIf = "pr3.Name;else other_name">
+                                                                            <strong>{{pr3.Name["0"] }}</strong>
+                                                                        </span> 
+									<ng-template #other_name>
+									<span>
+                                                                            <strong>----</strong>
+                                                                        </span> 
+                                                    			</ng-template>
+									<div *ngIf="cl4.expanded">
+										<span *ngIf="cl4.product">
+										{{cl4.product.Name["0"]}}
+										</span>
+									</div>
+                                                                    </li>
+									
+                                                                </ul>
+							</div>
+                                                                    </li>
+									
+                                                                </ul>-->
+
+									</div>
+                                                                    </li>
+                                                                </ul>
+                                                        </div>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+                    </span>
+                </ul>
+        </div>
+        </div>
+        
+    </div>
+
+
+<!--<div>{{transferData | json}}</div>-->
+
+<!-- <div class="row">
+    <div class="col-md-6" *ngIf="result">
+        <ul *ngIf="classification">
+                
+            <span *ngFor="let cl of classification">
+                   <li><strong>{{cl.Name["0"] | json}}</strong></li>
+                    <ul>
+                            <li *ngFor="let cl2 of cl.Classification">
+                                    {{cl2.Name["0"] | json}}
+                                    <ul>
+                                        <li *ngFor="let cl3 of cl2.Classification">{{cl3.Name["0"] | json}}</li>
+                                    </ul>
+                                </li>
+                    </ul>
+                
+                </span>
+        </ul>
+    </div>
+    <div class="col-md-6" >
+            <button type="button" class="btn btn-success" (click) = "getResult()">get Result</button>              
+    </div>
+</div> -->
+
+
+
+<!--
+    <div class="row">
+    <div class="col-md-6">
+        <ul>
+            <li *ngFor="let dir of directories">
+                <span class="iconButton" [ngClass]='{"tree-node-no-children": !dir.showIcon}' >
+                    {{dir.icon}}
+                </span>            
+                <span><input type="checkbox" [checked]="dir.checked" (click)="dir.check()"    /></span> 
+                <span (click)="dir.toggle()">{{ dir.name }}</span>
+                <div *ngIf="dir.expanded">
+                    <ul >
+                        <li *ngFor="let file of dir.files">{{file}}</li>
+                    </ul>
+                    <tree-view [directories]="dir.directories"></tree-view>
+                </div>
+            </li>
+        </ul>
+    </div>
+
+    <div class="col-md-6">
+        <ul>
+            <li *ngFor="let dir of directories">
+                <span class="iconButton" [ngClass]='{"tree-node-no-children": !dir.showIcon}' >
+                    {{dir.icon}}
+                </span>            
+                <span><input type="checkbox" [checked]="dir.checked" (click)="dir.check()"    /></span> 
+                <span (click)="dir.toggle()">{{ dir.name }}</span>
+                <div *ngIf="dir.expanded">
+                    <ul >
+                        <li *ngFor="let file of dir.files">{{file}}</li>
+                    </ul>
+                    <tree-view [directories]="dir.directories"></tree-view>
+                </div>
+            </li>
+        </ul>
+    </div>
+</div>-->
