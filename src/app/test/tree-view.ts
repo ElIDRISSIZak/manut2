@@ -134,6 +134,7 @@ export class TreeView implements OnInit {
 				cl2.product = product;			
 				this.count ++;
 				if(cl2.product['0']){
+						cl2.product['0'].AttributeLink.icon = '+';
 					for( let att of cl2.product['0'].AttributeLink){
 						att.message = "ID : "+att.attribut.AttributeID+" units "+att.units;
 					}
@@ -154,6 +155,12 @@ setTimeout(()=>{ cl3.product = this._http.get("/api/sfa2/"+cl3.attribut.ID)
 		if(product != null){         	
 				cl3.product = product;
 				this.count ++;
+				if(cl3.product['0']){
+						cl3.product['0'].AttributeLink.icon = '+';
+					for( let att of cl3.product['0'].AttributeLink){
+						att.message = "ID : "+att.attribut.AttributeID+" units "+att.units;
+					}
+				}
 			}
 		})}, 200);
 
@@ -172,6 +179,13 @@ setTimeout(()=>{ cl3.product = this._http.get("/api/sfa2/"+cl3.attribut.ID)
          	//console.log("SFA PROD -- => ",cl4.product, "=> GMC  lv3=>", cl4.Name["0"]);
 			cl4.product = product;
 				this.count ++;
+				if(cl4.product['0']){
+						cl4.product['0'].AttributeLink.icon = '+';
+					for( let att of cl4.product['0'].AttributeLink){
+						att.message = "ID : "+att.attribut.AttributeID+" units "+att.units;
+					}
+				}
+
 				console.log("count => ",this.count );
 				if(this.count == 1826){
                				this.loading = true;
@@ -249,7 +263,10 @@ setTimeout(()=>{ cl3.product = this._http.get("/api/sfa2/"+cl3.attribut.ID)
 								if(prod2.techattrs){
 								prod2.techattrs.icon = '+';
 								prod2.techattrs.showIcon = true;								
-								
+								for( let att of prod2.techattrs){
+									att.idf = prod2.id;
+									console.log("=> ID PRODUIT ", att.idf );
+								}
 						}
 							}
 						}
@@ -280,7 +297,10 @@ setTimeout(()=>{ cl3.product = this._http.get("/api/sfa2/"+cl3.attribut.ID)
 								if(prod1.techattrs){
 								prod1.techattrs.icon = '+';
 								prod1.techattrs.showIcon = true;									
-								
+								for( let att of prod1.techattrs){
+									att.idf = prod1.id;
+									console.log("=> ID PRODUIT ", att.idf );
+								}
 						}
 							}
 						}
@@ -306,10 +326,15 @@ setTimeout(()=>{ cl3.product = this._http.get("/api/sfa2/"+cl3.attribut.ID)
                    					prod.checked = false;
                    					prod.showIcon = true;
                   	 				prod.icon = '+';
-							console.log("=> PROD ", prod );
+							
 							if(prod.techattrs){
 								prod.techattrs.icon = '+';
 								prod.techattrs.showIcon = true;								
+								
+								for( let att of prod.techattrs){
+									att.idf = prod.id;
+									console.log("=> ID PRODUIT ", att.idf );
+								}
 								
 							}
 							}
@@ -492,7 +517,7 @@ transferDataSuccess($event: any , att: any) {
 	this.idDragged = $event.dragData.id;
 	this.idDropped = att.attribut.ID;
 	this.selected = "Mapping success : classification : "+ mapp.idf +" attribut: "+ mapp.idsfa;
-	
+	att.mapped = true;
 	var headers = new Headers();
     	headers.append('content-type','application/json');
 
@@ -517,20 +542,40 @@ getSelectedNode(id:any, name: any){
 	console.log("cc",id,"  ==> ", name);
 } 
 // Mapping Produit TO SFA
-transferDataSuccess2($event: any , att: any) {
-        alert("Mapping Type 2: Success");
-        this.test = true;
-	 let mapp2 = {attribut : null , attributsfa : null , status : "en cours"};
-	mapp2.attribut = $event.dragData;
-	mapp2.attributsfa = att;
-	mapp2.status = 'en cours';
-        //this.receivedData.push(mapp);
-	this.color2 = 'orange';
-	//this.idDragged = $event.dragData;
-	this.idDropped2 = att;
-	this.idDragged2 = $event.dragData;
-	//this.selected = "Mapping success : classification : "+ mapp.classification_id +" attribut: "+ mapp.sfa+" status : "+mapp.status; 
-        console.log("EVENT => ",this.idDragged2);
+transferDataSuccess2($event: any , att: any , sfa:any) {
+	if(window.confirm('Vous allez mapper Confirmer le mapping ?')){
+       		
+        	this.test = true;
+	 	let mapp2 = {idf : null , idtagf : null , idsfa : null , idtaggmc : null, user : null};
+		mapp2.idf = $event.dragData.idf;
+		mapp2.idtagf = $event.dragData.id;
+		mapp2.idsfa = sfa.attribut.ID;
+		mapp2.idtaggmc = att.attribut.AttributeID;
+		mapp2.user = this.currentUser.username;
+
+        	//this.receivedData.push(mapp);
+		this.color2 = 'orange';
+		//this.idDragged = $event.dragData;
+		this.idDropped2 = att;
+		this.idDragged2 = $event.dragData;
+		$event.dragData.mapped = true;
+		att.mapped = true;
+		var headers = new Headers();
+    	headers.append('content-type','application/json');
+		this._http.post('/api/mappingtag', JSON.stringify(mapp2), {headers:headers})
+		.subscribe(data => {
+               		this.data = data;
+ 			console.log("=> ",this.data._body);
+			/*if(this.data._body == "true"){
+			
+			} */
+                
+            	});
+	
+
+        	console.log("EVENT => ",mapp2);
+
+	}
     } 
 
   

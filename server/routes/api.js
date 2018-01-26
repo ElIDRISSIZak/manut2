@@ -1234,6 +1234,56 @@ router.post('/mappingsfa', cors(), (req, res, next) => {
     }
       //res.json(mapped);   
 });
+
+
+/*=========================================================================================================================================================================*/
+//SAVE MAPPING 2 des attributs ZAKARIA
+router.post('/mappingtag', cors(), (req, res, next) => {
+    var model = req.body;
+	var idf = model.idf;
+	var idsfa = model.idsfa;
+	var userId = model.user;
+	var idtagf = model.idtagf;
+	var idtaggmc = model.idtaggmc;
+	var structure;	
+	console.log("JONNYYYYY ", userId);
+	db.collection("users").findOne({"username": userId}, function(err, user) {
+		
+		structure = user.structure;
+		if(structure != "manutan"){
+			
+			db.collection("mappingsfa").findOne({"structure": structure, "idf": idf}, function(err, mappingsfa) {
+				console.log(mappingsfa);
+				console.log(structure);
+				console.log(idsfa);
+				console.log(idf);
+				if(mappingsfa != null){
+					db.collection('mappingtag').remove({"idf": idf, "idtagf":idtagf, "structure": structure});
+					//db.collection('mappingtag').insert({"idf": idf, "idtagf":idtagf, "idtaggmc":idtaggmc, "user":userId, "structure": structure, "date": Date.now(), "statut":"provisoire" });
+													
+					console.log(structure);
+							 
+					db.collection("productsmanutan").distinct("attribut.ID", {"AttributeLink.attribut.AttributeID":idtaggmc}, function(err, taggmc) {	
+						db.collection("mappingsfa").distinct("idf" ,{"structure": structure, "idsfa": {$in :taggmc}}, function(err, searchmapping){	
+							console.log("mapped idf", searchmapping);
+							db.collection(structure).distinct("ProductID", {"ProductID" : idtagf, "ProductID": {$in : searchmapping} }, function(err, productsToMap) {
+								db.collection("mappingtag").distinct( "idf", {"structure" : structure, "idtagf" : idtagf, "idf" : {$in : productsToMap}}, function(err, alreadyMap) {
+									productsToMap.forEach((productToMap) => {
+										if( alreadyMap.indexOf(productToMap) == -1) {
+											db.collection('mappingtag').insert({"idf": productToMap, "idtagf":idtagf, "idtaggmc":idtaggmc, "user":userId, "structure": structure, "date": new Date(Date.now()).toISOString(), "statut":"provisoire" });
+												console.log("insertion");
+										}					
+									});											
+								});																			
+							});
+						});								
+					});
+				}
+			});	
+		}
+	});
+});
+
 /// INtegration code Johnny 23 Jan Mardi 2018
 /*==================================================================*/
 /*====================Insertion mapping du structure filiale========*/

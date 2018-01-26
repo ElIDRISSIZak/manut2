@@ -1,51 +1,48 @@
-/*==================================================================================================================*/
-/*================================resquest sfa + attribut name + unit name==========================================*/
-/*==================================================================================================================*/
 
-/* request sfa id + Tag name + name unit */
-router.get('/sfa/:gmc', (req, res) => {
-            
-    
-    db.collection("productsmanutan").find({"ClassificationReference.attribut.ClassificationID" : req.params.gmc},function(err, result) {
+router.get('/mappingtag/:idf/:idtagf/:idsfa/:idtaggmc/:user', (req, res) => {
 
-          result.forEach((sfa) => {
-            if (sfa.AttributeLink != null && typeof(sfa.AttributeLink) != "undefined") {
-                sfa.AttributeLink.forEach((attributLink) => {
-                
-                // request ID + url attribute
-                db.collection("attribute").findOne({"attribut.ID" : attributLink.attribut.AttributeID}, function(err, attributes) {
-                attributLink.name = attributes.Name;
-                attributLink.units= [];
-                console.log(attributLink.name);                         
-                        
-                        if (attributes.Validation != null && typeof(attributes.Validation) != "undefined") {   
-                            var validations = attributes.Validation;                             
-                            var unitLinks = validations[0].UnitLink;
- 
-                            if (unitLinks != null && typeof(unitLinks) != "undefined") {
-                                    
-                                var cpt = 0;
-                                unitLinks.forEach((unitLink) => {          
-                                                           
-                                    db.collection("unit").findOne({"attribut.ID":unitLink.attribut.UnitID }, function(err, unit) {
-                                        if (err) throw err;
-                                        //console.log(unitLink.attribut.UnitID);
-                                        //console.log(unit);                                     
-                                        attributLink.units.push(unit.Name[0]);
-                                        console.log(attributLink.units);
-                                        //console.log(attributLink.units); 
-                                        cpt++;
-                                    }); 
-                                });
-                            }
-                        };
-                    });
-                    
-                });
-            }                         
-        });  
-        setTimeout(() => {
-            res.json(result);
-        },200); 
-   });   
+	
+	var idf = req.params.idf;
+	//var idgmc = req.params.idgmc;
+	var idtagf = req.params.idtagf;
+	var idtaggmc = req.params.idtaggmc;
+	var idsfa = req.params.idsfa;
+	var userId = req.params.user;
+	var structure;	
+	
+	db.collection("users").findOne({"username": userId}, function(err, user) {
+		
+		structure = user.structure;
+		if(structure != "manutan"){
+			
+			db.collection("mappingsfa").findOne({"structure": structure, "idsfa": idsfa, "idf": idf}, function(err, mappingsfa) {
+				console.log(mappingsfa);
+				console.log(structure);
+				console.log(idsfa);
+				console.log(idf);
+				if(mappingsfa != null){
+					db.collection('mappingtag').remove({"idf": idf, "idtagf":idtagf, "structure": structure});
+					//db.collection('mappingtag').insert({"idf": idf, "idtagf":idtagf, "idtaggmc":idtaggmc, "user":userId, "structure": structure, "date": Date.now(), "statut":"provisoire" });
+													
+					console.log(structure);
+							 
+					db.collection("productsmanutan").distinct("attribut.ID", {"AttributeLink.attribut.AttributeID":idtaggmc}, function(err, taggmc) {	
+						db.collection("mappingsfa").distinct("idf" ,{"structure": structure, "idsfa": {$in :taggmc}}, function(err, searchmapping){	
+							console.log("mapped idf", searchmapping);
+							db.collection(structure).distinct("ProductID", {"ProductID" : idtagf, "ProductID": {$in : searchmapping} }, function(err, productsToMap) {
+								db.collection("mappingtag").distinct( "idf", {"structure" : structure, "idtagf" : idtagf, "idf" : {$in : productsToMap}}, function(err, alreadyMap) {
+									productsToMap.forEach((productToMap) => {
+										if( alreadyMap.indexOf(productToMap) == -1) {
+											db.collection('mappingtag').insert({"idf": productToMap, "idtagf":idtagf, "idtaggmc":idtaggmc, "user":userId, "structure": structure, "date": new Date(Date.now()).toISOString(), "statut":"provisoire" });
+												console.log("insertion");
+										}					
+									});											
+								});																			
+							});
+						});								
+					});
+				}
+			});	
+		}
+	});
 });
