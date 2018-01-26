@@ -983,7 +983,7 @@ router.get('/sfa2/:gmc', (req, res) => {
         });  
         setTimeout(() => {
             res.json(result);
-        },200); 
+        },250); 
    });   
 });
 
@@ -1284,6 +1284,27 @@ router.post('/mappingtag', cors(), (req, res, next) => {
 	});
 });
 
+
+// find idProduit to get all Mapping informations
+router.get('/infomapping1/:idf', (req, res) => {
+	var idf = req.params.idf;
+    connection((db) => {
+        
+        db.collection('mappingsfa').findOne( { idf: idf }, function(err, mapping) {
+        
+     
+		if(err){
+                res.json(null);
+            }
+	    console.log(mapping);
+            res.json(mapping);
+            //if(err)
+            // } else {
+            //    res.json("doc");
+            // }
+    });
+});
+});
 /// INtegration code Johnny 23 Jan Mardi 2018
 /*==================================================================*/
 /*====================Insertion mapping du structure filiale========*/

@@ -45,6 +45,8 @@ export class TreeView implements OnInit {
 	idDragged2:any;
 	color2 : any;
 	data: any;
+	selectedMapping: any;
+	idf :any;
 	arrayFiliale : string [] = [ 'filiale1' , 'Rapide Racking', 'Key' , 'Pichon' , 'Witre' , 'Casal Sport' , 'Ikaros', 'manuco'];
     constructor(private componentResolver: ComponentFactoryResolver,
                 private router: Router, private _http: Http){
@@ -90,7 +92,17 @@ export class TreeView implements OnInit {
     toggle2(cl:any){
         
         cl.expanded = !cl.expanded;
+	 //cl.icon = '-';
         cl.icon = this.getIcon(cl);
+    }
+    toggle3(cl:any){
+        
+        cl.expanded = !cl.expanded;
+	 //cl.icon = '-';
+          if(cl.expanded){
+            cl.icon = '- ';
+          }else
+          cl.icon = '+ ';
     }
     getData():void {
         this._http.get("/api/test")
@@ -134,7 +146,7 @@ export class TreeView implements OnInit {
 				cl2.product = product;			
 				this.count ++;
 				if(cl2.product['0']){
-						cl2.product['0'].AttributeLink.icon = '+';
+						cl2.product['0'].icon = '+';
 					for( let att of cl2.product['0'].AttributeLink){
 						att.message = "ID : "+att.attribut.AttributeID+" units "+att.units;
 					}
@@ -156,7 +168,7 @@ setTimeout(()=>{ cl3.product = this._http.get("/api/sfa2/"+cl3.attribut.ID)
 				cl3.product = product;
 				this.count ++;
 				if(cl3.product['0']){
-						cl3.product['0'].AttributeLink.icon = '+';
+						cl3.product['0'].icon = '+';
 					for( let att of cl3.product['0'].AttributeLink){
 						att.message = "ID : "+att.attribut.AttributeID+" units "+att.units;
 					}
@@ -180,7 +192,7 @@ setTimeout(()=>{ cl3.product = this._http.get("/api/sfa2/"+cl3.attribut.ID)
 			cl4.product = product;
 				this.count ++;
 				if(cl4.product['0']){
-						cl4.product['0'].AttributeLink.icon = '+';
+						cl4.product['0'].icon = '+';
 					for( let att of cl4.product['0'].AttributeLink){
 						att.message = "ID : "+att.attribut.AttributeID+" units "+att.units;
 					}
@@ -539,6 +551,7 @@ getSelectedNode(id:any, name: any){
 	this.selected = null;
 	this.selectedId = id;
 	this.selectedName = name;
+	this.selectedMapping = null;
 	console.log("cc",id,"  ==> ", name);
 } 
 // Mapping Produit TO SFA
@@ -560,6 +573,7 @@ transferDataSuccess2($event: any , att: any , sfa:any) {
 		this.idDragged2 = $event.dragData;
 		$event.dragData.mapped = true;
 		att.mapped = true;
+		
 		var headers = new Headers();
     	headers.append('content-type','application/json');
 		this._http.post('/api/mappingtag', JSON.stringify(mapp2), {headers:headers})
@@ -578,5 +592,21 @@ transferDataSuccess2($event: any , att: any , sfa:any) {
 	}
     } 
 
-  
+ getInfoMapping(id:any){
+	this.selected = null;
+	this.selectedId = null;
+	this.selectedName = null;
+	//this.selectedMapping =  {_id : null , idf : null , idsfa : null , user : null , structure : null , date : null, statut : null};
+	this._http.get('/api/infomapping1/'+id)
+    	.subscribe(data => {
+			if(data !=null){
+               			//this.selectedMapping = (<any>data)._body;
+				this.selectedMapping = (<any>data).json();
+				
+ 				console.log("=> ",this.selectedMapping);
+			}
+                
+            	});
+
+} 
 }
