@@ -676,7 +676,7 @@
                          <span *ngIf="cl3.product['0'].AttributeLink?.length > 0;else other_content" >
 					<ul><li style=" list-style: none;" >
 					<span (click)="toggle3(cl3.product['0'])" class="iconButton" [ngClass]='{"tree-node-no-children": !cl3.product[0].showIcon}' >
-                                               	 				{{cl3.product['0'].AttributeLink.icon}}
+                                               	 				{{cl3.product['0'].icon}}
                                        		 				</span>
 								<strong>Attributs</strong>
 								<div *ngIf="cl3.product['0'].expanded">  
@@ -778,7 +778,7 @@
 			<span *ngIf="cl4.product['0'].AttributeLink?.length > 0;else other_content" >
 					<ul><li style=" list-style: none;" >
 						<span (click)="toggle3(cl4.product['0'])" class="iconButton" [ngClass]='{"tree-node-no-children": !cl4.product[0].showIcon}' >
-                                               	 				{{cl4.product['0'].AttributeLink.icon}}
+                                               	 				{{cl4.product['0'].icon}}
                                        		 		</span>
 								<strong>Attributs</strong>
 								<div *ngIf="cl4.product['0'].expanded">
