@@ -1141,54 +1141,13 @@ router.get('/sfa2/:gmc', (req, res) => {
 /*===================================Mapping Filiale========================================*/
 /*==========================================================================================*/
 
-router.get('/mappingsfa/:idf/:idsfa/:user', (req, res) => {
-
-	
-	var idf = req.params.idf;
-	var idsfa = req.params.idsfa;
-	var userId = req.params.user;
-	var structure;
-	
-	
-	db.collection("users").findOne({"username": userId}, function(err, user) {
-		
-		structure = user.structure;
-		if(structure != "manutan"){
-			var product;
-			db.collection(structure).findOne({"ProductID" : idf}, function(err, product) {				
-				//console.log(product);
-				if( product != null) {
-					//console.log("product");
-					db.collection('mappingsfa').remove({"idf":idf});
-					db.collection('mappingsfa').insert({"idf":idf, "idsfa":idsfa, "user":userId, "date": Date.now(), "statut":"provisoire" });
-				} else {
-					db.collection(structure).distinct("ProductID", {$or : [{"Classificationlevel1ID" : idf}, {"Classificationlevel2ID" : idf}, {"Classificationlevel3ID" : idf}, {"Classificationlevel4ID" : idf}, {"ModelID" : idf}] }, function(err, idproduct) {
-						
-						 if(idproduct != null){
-							 idproduct.forEach((productline) => {
-							 	db.collection('mappingsfa').findOne({"idf" : productline}, function(err, mapping) {	
-									 //console.log(productline);
-									 if (mapping == null){
-										 //console.log("insert one");
-										 db.collection('mappingsfa').insert({"idf": productline, "idsfa":idsfa, "user":userId, "date": Date.now(), "statut":"provisoire" });
-									 } else {
-										 //console.log("Already existing");
-									 }
-							 	});	 
-					 		});
-						 }									
-					});
-				}	
-			});	
-		}
-	});
-});
 /*=========================================================================================================================================================================*/
 //SAVE MAPPING ZAKARIA
 router.post('/mappingsfa', cors(), (req, res, next) => {
     var model = req.body;
 	var idf = model.idf;
 	var idsfa = model.idsfa;
+	var namesfa = model.namesfa;
 	var userId = model.username;
 	var structure;
 	var mapped = false;
@@ -1208,7 +1167,7 @@ router.post('/mappingsfa', cors(), (req, res, next) => {
 				if( product != null) {
 					//console.log("product");
 					db.collection('mappingsfa').remove({"idf":idf, "structure": structure});
-					db.collection('mappingsfa').insert({"idf":idf, "idsfa":idsfa, "user":userId, "structure": structure, "date": Date.now(), "statut":"provisoire" });
+					db.collection('mappingsfa').insert({"idf":idf, "idsfa":idsfa, "namesfa":namesfa, "user":userId, "structure": structure, "date": Date.now(), "statut":"provisoire" });
 				} else {
 					db.collection(structure).distinct("ProductID", {$or : [{"Classificationlevel1ID" : idf}, {"Classificationlevel2ID" : idf}, {"Classificationlevel3ID" : idf}, {"Classificationlevel4ID" : idf}, {"ModelID" : idf}] }, function(err, idproduct) {
 						
@@ -1218,7 +1177,7 @@ router.post('/mappingsfa', cors(), (req, res, next) => {
 									 //console.log(productline);
 									 if (mapping == null){
 										 //console.log("insert one");
-										 db.collection('mappingsfa').insert({"idf": productline, "idsfa":idsfa, "user":userId, "structure": structure, "date": Date.now(), "statut":"provisoire" });
+										 db.collection('mappingsfa').insert({"idf": productline, "idsfa":idsfa, "namesfa":namesfa, "user":userId, "structure": structure, "date": Date.now(), "statut":"provisoire" });
 									 } else {
 										 //console.log("Already existing");
 									 }
@@ -1235,9 +1194,9 @@ router.post('/mappingsfa', cors(), (req, res, next) => {
       //res.json(mapped);   
 });
 
+// elle va remplacer celle en haut
+/* mapping tag*/
 
-/*=========================================================================================================================================================================*/
-//SAVE MAPPING 2 des attributs ZAKARIA
 router.post('/mappingtag', cors(), (req, res, next) => {
     var model = req.body;
 	var idf = model.idf;
@@ -1251,39 +1210,32 @@ router.post('/mappingtag', cors(), (req, res, next) => {
 		
 		structure = user.structure;
 		if(structure != "manutan"){
-			
-			db.collection("mappingsfa").findOne({"structure": structure, "idf": idf}, function(err, mappingsfa) {
-				console.log(mappingsfa);
+		
 				console.log(structure);
 				console.log(idsfa);
 				console.log(idf);
-				if(mappingsfa != null){
-					db.collection('mappingtag').remove({"idf": idf, "idtagf":idtagf, "structure": structure});
-					//db.collection('mappingtag').insert({"idf": idf, "idtagf":idtagf, "idtaggmc":idtaggmc, "user":userId, "structure": structure, "date": Date.now(), "statut":"provisoire" });
-													
-					console.log(structure);
+				
+				db.collection('mappingtag').remove({"idf": idf, "idtagf":idtagf, "structure": structure});
+
 							 
-					db.collection("productsmanutan").distinct("attribut.ID", {"AttributeLink.attribut.AttributeID":idtaggmc}, function(err, taggmc) {	
-						db.collection("mappingsfa").distinct("idf" ,{"structure": structure, "idsfa": {$in :taggmc}}, function(err, searchmapping){	
-							console.log("mapped idf", searchmapping);
-							db.collection(structure).distinct("ProductID", {"ProductID" : idtagf, "ProductID": {$in : searchmapping} }, function(err, productsToMap) {
-								db.collection("mappingtag").distinct( "idf", {"structure" : structure, "idtagf" : idtagf, "idf" : {$in : productsToMap}}, function(err, alreadyMap) {
-									productsToMap.forEach((productToMap) => {
-										if( alreadyMap.indexOf(productToMap) == -1) {
-											db.collection('mappingtag').insert({"idf": productToMap, "idtagf":idtagf, "idtaggmc":idtaggmc, "user":userId, "structure": structure, "date": new Date(Date.now()).toISOString(), "statut":"provisoire" });
-												console.log("insertion");
-										}					
-									});											
-								});																			
-							});
-						});								
-					});
-				}
-			});	
+				db.collection("productsmanutan").distinct("attribut.ID", {"AttributeLink.attribut.AttributeID":idtaggmc}, function(err, taggmc) {	
+					db.collection("mappingsfa").distinct("idf" ,{"structure": structure, "idsfa": {$in :taggmc}}, function(err, searchmapping){	
+						console.log("mapped idf", searchmapping);
+						db.collection(structure).distinct("ProductID", {"TechnicalattributID" : idtagf, "ProductID": {$in : searchmapping} }, function(err, productsToMap) {
+							db.collection("mappingtag").distinct( "idf", {"structure" : structure, "idtagf" : idtagf, "idf" : {$in : productsToMap}}, function(err, alreadyMap) {
+								productsToMap.forEach((productToMap) => {
+									if( alreadyMap.indexOf(productToMap) == -1) {
+										db.collection('mappingtag').insert({"idf": productToMap, "idtagf":idtagf, "idtaggmc":idtaggmc, "user":userId, "structure": structure, "date": new Date(Date.now()).toISOString(), "statut":"provisoire" });
+											console.log("insertion");
+									}					
+								});											
+							});																			
+						});
+					});								
+				});
 		}
 	});
 });
-
 
 // find idProduit to get all Mapping informations
 router.get('/infomapping1/:idf', (req, res) => {
@@ -1309,14 +1261,16 @@ router.get('/infomapping1/:idf', (req, res) => {
 /*==================================================================*/
 /*====================Insertion mapping du structure filiale========*/
 
-
 router.get('/filiale/:structure', (req, res) => {
     
 	var structure = req.params.structure;	
 	var root = [];
 	db.collection("mappingsfa").distinct("idf", {"structure" : structure}, function(err, mapping) {
-    
-		//console.log("mapping : ", mapping);	
+    db.collection("mappingtag").find({"structure" : structure, "idf" : { $in : mapping}}, function(err, mappingtag) {
+		var mappingkeys = [];
+		mappingtag.forEach( function(currentmapping){
+			mappingkeys.push(currentmapping.idf + currentmapping.idtagf);
+		});
 		
 		var id1 = 0;
 		var id2 = 0;
@@ -1475,6 +1429,11 @@ router.get('/filiale/:structure', (req, res) => {
 								techattr.value = item["TechnicalattributVALUE"];
 								techattr.unit = item["TechnicalattributUNIT"];
 								idattr1 = item["TechnicalattributID"];
+								if(mappingkeys.indexOf(product.id + techattr.id) > -1){
+									//console.log(" find mapped ");
+									techattr.mapped = "true";
+									//console.log(product.mapped);		
+								}
 								//classification4.models.push(model);
 								tech.techattrs.push(techattr);
 								//console.log("ATT saved=>",tech.id);
@@ -1583,6 +1542,11 @@ router.get('/filiale/:structure', (req, res) => {
 								techattr.value = item["TechnicalattributVALUE"];
 								techattr.unit = item["TechnicalattributUNIT"];
 								idattr2 = item["TechnicalattributID"];
+								if(mappingkeys.indexOf(product.id + techattr.id) > -1){
+									//console.log(" find mapped ");
+									techattr.mapped = "true";
+									//console.log(product.mapped);		
+								}
 								//classification4.models.push(model);
 								tech.techattrs.push(techattr);
 								//console.log("ATT saved=>",tech.id);
@@ -1681,137 +1645,31 @@ router.get('/filiale/:structure', (req, res) => {
 								techattr.value = item["TechnicalattributVALUE"];
 								techattr.unit = item["TechnicalattributUNIT"];
 								idattr3 = item["TechnicalattributID"];
+								if(mappingkeys.indexOf(product.id + techattr.id) > -1){
+									//console.log(" find mapped ");
+									techattr.mapped = "true";
+									//console.log(product.mapped);		
+								}
 								//classification4.models.push(model);
 								tech.techattrs.push(techattr);
 								//console.log("ATT saved=>",tech.id);
 						}
 					});
 
-					//FIN iteration
+					});
 					});
 
-
-					});
-
-					/*// Integration Model and Products
-					model= {};
-					model.products = [];
-					var mdl = item4.classification;
-					
-					mdl.forEach(function(item5){
-						
-						if((item["Classification level 4 ID"] == item5.id) && (id5 != item["Model ID"])
-							&& ("-" != item["Model ID"])){
-													
-							//console.log("** ID MODEL **",item["Model ID"]);
-							model.id = item["Model ID"];
-							model.name = item["Model NAME"];
-							//console.log("**MODEL **",model);
-							
-							if(item5.models && (id5 != item["Model ID"])){
-								item5.models.push(model);
-								//console.log("** ID4 PUSH **", id5);	
-							}
-							
-							id5 = item["Model ID"];
-						}
-					// Integration Model and Products
-						
-						
-					});*/
-					
-	
 					});
 					
-					/*if((item["Classification level 3 ID"] == item3.id) && (id3 != item["Classification level 3 ID"])){
-
-						classification3.id = item["Classification level 3 ID"];
-						classification3.name = item["Classification level 3 NAME"];
-						id3 = item["Classification level 3 ID"];
-						item3.classification.push(classification3);
-					}*/
 				});
 				
-				/*if(item["Classification level 2 ID"] == item2){
-					//console.log("** id2 changed ", item["Classification level 3 ID"]);
-					classification3.id = item["Classification level 3 ID"];
-					classification3.name = item["Classification level 3 NAME"];
-					id3 = classification3.id;
-					
-					classification2.classification.push(classification3);
-				}*/
+				
 				
 			});
 						
 		});
 	
-
-	// MODELS ICI apres qu on a terminé iteration des CLASSIFICATIONS
-
-
 	
-			
-	//result.forEach(function(item){
-		////console.log("** TEST => rooot class**");
-		/*var idtest= 0;
-		var idclassif =0
-		root.forEach(function(item2){
-			var id_model = 0;
-			var idnbr = 0;
-			model= {};
-			model.products = [];
-			
-			var cl = item2.classification;
-				//item3.models
-
-			
-			var poitem = 0;
-			
-			cl.forEach(function(item3){
-				poitem =  item3.id;
-				
-				item3.models = [];
-				if (typeof item3.classification == 'undefined' || item3.classification.length == 0) {
-    					// the array is EMPTY
-					//item3.models = [];
-					idnbr++;
-					////console.log("** empty level => **", item3.id);
-					//console.log("++++");
-					result.forEach(function(item){
-					    if( (item3.id ==  item["Classification level 2 ID"]) && (idtest !=  item["Classification level 2 ID"])){
-						//if((idtest !=  item["Classification level 1 ID"])){
-							//console.log("------");
-							model.id = item["Model ID"];
-							model.name = item["Model NAME"];
-							id_model = item["Model ID"];
-							idtest = item["Classification level 2 ID"];			
-							item3.models.push(model);
-							//console.log("** level => **", item3.id);
-							idtest = item["Classification level 1 ID"];
-							//console.log("** ID =*", idtest);
-						//}
-					    }
-					});
-					
-				}
-										
-			});
-			
-
-		
-	});*/
-	/*var idtest= 0;
-	var idclassif =0
-	result.forEach(function(item){
-		////console.log("** TEST => rooot class**");
-		if(item["Classification level 3 ID"] == "-"){
-		
-		     root.forEach(function(item2){
-			if(item["Classification level 2 ID"] == item2.classification){
-		     });
-		}
-	
-	});*/
 
 		//setTimeout(() => {
             res.json(root);
@@ -1820,7 +1678,7 @@ router.get('/filiale/:structure', (req, res) => {
 	
 		
 	});
-
+});
 
 
 });
@@ -2070,55 +1928,127 @@ router.get('/filialebak/:structure', (req, res) => {
 });
 
 
-/*==================================================================*/
-/*===========Insertion avec nom de la structure extension===========*/
-/*==================================================================*/
+/*============================================================================*/
+/*===========Insertion avec nom de la structure extension corection===========*/
+/*============================================================================*/
 //FCT
 function getFileExtension3(filename) {
-      return filename.slice((filename.lastIndexOf(".csv") - 1 >>> 0) + 2);
-    }
+	return filename.slice((filename.lastIndexOf(".csv") - 1 >>> 0) + 2);
+  }
 
 // csv to json 
 router.post('/csv', cors(), (req, res, next) => {
-	 var model = req.body;
-    	var filename = model.filename;
-	var structure = model.structure;
-	//console.log("test csv", structure, "=> name",filename);
-	if( getFileExtension3(filename) == 'csv' && filename.startsWith(structure)) {
+   var model = req.body;
+	  var filename = model.filename;
+  var structure = model.structure;
+  //console.log("test csv", structure, "=> name",filename);
+  if( getFileExtension3(filename) == 'csv' && filename.startsWith(structure)) {
 
-	   ////console.log(json);
-	   var fs = require('fs');
-	   		
-	   var fileInputName = 'uploads/' + filename; 
-	   var fileOutputName = 'uploads/output.json';
-	         
-	   csvToJson.generateJsonFileFromCsv(fileInputName,fileOutputName);
-	   fs.readFile(fileOutputName, 'utf8', function (erreur, donnees) {
-	         if (erreur)
-	            throw erreur; // Vous pouvez gérer les erreurs avant de parser le JSON
-	         var filiales1 = JSON.parse(donnees);
+	 ////console.log(json);
+	 var fs = require('fs');
 			 
+	 var fileInputName = 'uploads/' + filename; 
+	 var fileOutputName = 'uploads/output.json';
+	 
+	 
+	csvToJson.fieldDelimiter('|').generateJsonFileFromCsv(fileInputName,fileOutputName);
+	var seconds = 60;
+	var await = new Date(new Date().getTime() + seconds * 1000);
+	while(await > new Date()){
+	   
+	}
+	console.log("terminer");
+	
+
+   /*setTimeout(function() {       
+		csvToJson.fieldDelimiter('|').generateJsonFileFromCsv(fileInputName,fileOutputName);
+   }, 50000);*/
+	 
+	 fs.readFile(fileOutputName, 'utf8', function (erreur, donnees) {
+		   if (erreur)
+			  throw erreur; // Vous pouvez gérer les erreurs avant de parser le JSON
+		   var filiales1 = JSON.parse(donnees);
+		   
+		   setTimeout(function() {  
+			  connection((db) => {
+				  db.collection(structure).remove({}, function(err, mapping) {
+					  cpt = 0;
+					  filiales1.forEach((objf1) => {
+						  objf1.sorter = cpt;
+					  
+						  db.collection(structure).insert(objf1, {safe: true});
+						  cpt++;
+  
+					   }); 
+				  });
+			  }); 
+		   }, 10000);   
+	   }); 
+	
+  };
+  res.json("file inserted"); 
+});
+ 
+/*suppression des mapping sfa et attribut*/
+
+router.get('/mappingdelete/:idf/:idtagf/:user', (req, res) => {
+	
+		
+		var idf = req.params.idf;
+		var idtagf = req.params.idtagf;
+		var userId = req.params.user;
+		var structure;
+		
+		
+		db.collection("users").findOne({"username": userId}, function(err, user) {
 			
-		    connection((db) => {
-		        db.collection(structure).remove({}, function(err, mapping) {
-					cpt = 0;
-					filiales1.forEach((objf1) => {
-	            		objf1.sorter = cpt;
-	            	
-            		db.collection(structure).insert(objf1, {safe: true});
-				cpt++;
+			structure = user.structure;
+			if(structure != "manutan"){
+				
+				db.collection(structure).findOne({"ProductID" : idf, "TechnicalattributID" : idtagf}, function(err, attribut) {
+					if(attribut != null){
+						db.collection('mappingtag').remove({"idf" : idf, "structure" : structure, "idtagf" : idtagf});
+					}else{
+						//var product;
+						db.collection(structure).findOne({"ProductID" : idf}, function(err, product) {					
+							//console.log(product);
+							if( product != null) {
+								//console.log("product");
+								db.collection('mappingsfa').remove({"idf" : idf, "structure" : structure});
+								db.collection('mappingtag').remove({"idf" : idf, "structure" : structure});
+							} else {
+								db.collection(structure).distinct("ProductID", {$or : [{"Classificationlevel1ID" : idf}, {"Classificationlevel2ID" : idf}, {"Classificationlevel3ID" : idf}, {"Classificationlevel4ID" : idf}, {"ModelID" : idf}] }, function(err, idproduct) {
+									
+									 if(idproduct != null){
+										 idproduct.forEach((productline) => { 	
+											//console.log(productline);								
+											//console.log("insert one");
+											db.collection('mappingsfa').remove({"idf": productline, "structure" : structure}); 
+											db.collection('mappingtag').remove({"structure" : structure, "idf" : productline});
+										 });	 
+									 }									
+								});
+							}	
+					});			
+				}
+			});		
+		}
+	});
+});
+ 
+/*Creation user + password + structure*/
+router.get('/createuser/:login/:password/:structure', (req, res) =>{
+	var userlogin = req.params.login;
+	var newpassword = req.params.password;
+	var newstructure = req.params.structure;
+	 
+	db.collection("users").findOne({"username": userlogin}, function(err, user) {
+		if(user == null){
+			db.collection("users").insert({"username" : userlogin, "password" : newpassword, "structure" : newstructure, "admin" : true});
+		}
+	});
+});
 
-	         }); 
-
-			});
-		    });    
-	     }); 
-	};
-	res.json("file inserted"); 
- });
- 
- 
- 
 // code 23 janvier Mardi 2018
 
 /*  FIIIIIIIIN */

@@ -56,6 +56,10 @@ export class AppComponent implements OnDestroy {
     	 //this.router.navigate(['admin']);
 	  this.pageAdmin = !this.pageAdmin;
   } 
+  home(){
+    //this.router.navigate(['admin']);
+ this.pageAdmin = false;
+}
   backClicked() {
         this._location.back();
     } 

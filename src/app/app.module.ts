@@ -25,6 +25,8 @@ import { AdminComponent } from './admin/admin.component';
 //uploading File
 import { FileSelectDirective, FileDropDirective } from 'ng2-file-upload';
 import { DndModule } from 'ng2-dnd';
+import { MatCardModule } from '@angular/material';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 
 @NgModule({
   declarations: [
@@ -38,6 +40,8 @@ import { DndModule } from 'ng2-dnd';
     AppRoutingModule,
     BrowserAnimationsModule,
     MatTooltipModule,
+    MatCardModule,
+    MatProgressSpinnerModule,
     DndModule.forRoot()                     // <Add Module: 
   ],
   providers: [DataService, TaskService , AdminService], // <-Add Services

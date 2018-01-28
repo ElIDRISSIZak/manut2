@@ -14,15 +14,19 @@ export class AdminComponent {
   result : any;
   sfa: any;	
   data : any;
+  page:any= true;
+  userss : any; 
   public uploader:FileUploader = new FileUploader({url:'/api/upload'});
   currentUser:User;
+  user:User;
+  structure:any;
+  username:any;
+  password:any;
 	arrayFiliale : string [] = [ 'filiale1' , 'Rapide Racking', 'Key' , 'Pichon' , 'Witre' , 'Casal Sport' , 'Ikaros', 'manuco'];
   constructor(private _http: Http ,private _adminService: AdminService , private router: Router , private _location: Location ) {
-	if (localStorage.getItem('ifAdmin') != "true") {
 
-	   // this._location.back();
-	}
 	this.currentUser = JSON.parse(localStorage.getItem("currentUser"));
+	this.getusers();
   }
    backClicked() {
         this._location.back();
@@ -59,7 +63,12 @@ export class AdminComponent {
 				.subscribe(res => this.result = res);
 			this._http.get("/api/insertionsfa")
       				.map(sfa => this.sfa = sfa.json().data)
-				.subscribe(sfa => this.sfa = sfa );		
+				.subscribe(sfa => this.sfa = sfa );	
+				this._http.get("/api/insertion4")
+		  			.subscribe( data => console.log("=>  insertion Attribut =>") );	
+					  this._http.get("/api/insertion5")
+					  .subscribe( data => console.log("=>  insertion UNITS =>") );
+					  
 			alert("Données MANUTAN Bien Chargés!");
 			window.location.reload();	
 		}else
@@ -135,5 +144,56 @@ export class AdminComponent {
 	
    }	
   
-  
+   getusers(){
+	//if (this.currentUser.structure == "manutan") {
+	this.page = false;	
+
+		this._http.get("/api/users")
+		  .map(result => this.result = result.json().data)
+		  .subscribe(res => this.userss = res);
+	}
+	uploadpage(){
+		//if (this.currentUser.structure == "manutan") {
+		this.page = !this.page;	
+		
+		   //}	
+	
+		}
+		addUser(){
+			console.log("ADDING USER");
+			if(this.username == null && this.structure == null && this.password == null){
+				alert("champ obligatoire");
+			}else{
+			var newUser = {
+				structure : this.structure,
+				username : this.username,
+				admin : true,
+				password : this.password  
+			}
+			/*var headers = new Headers();
+			headers.append('content-type','application/json');
+		    this._http.post('http://localhost:3000/api/user', JSON.stringify(this.user), {headers:headers})
+				  .map(res => res.json())
+				  .subscribe(user => {
+					this.user = user,
+					this.userss.push(this.user)
+					
+				});*/
+				
+				this.userss.push(newUser);
+		}
+		}
+		/*deleteTask(id){
+		  var tasks = this.tasks;
+		  this._taskService.deleteTask(id).subscribe(data => {
+			  if(data.n == 1){
+				  for(var i=0; i<tasks.length;i++){
+					  if(tasks[i]._id == id){
+						  tasks.splice(i,1);
+					  }
+				  }
+			  } 
+		  });
+	  }*/
+	  
 }

@@ -1,24 +1,4 @@
-<!--<div>
-        <h1>Create a Graph</h1>
-        <div class="alert alert-info" role="alert">
-            Click any pair of nodes to connect them with an edge
-        </div>
-        <vertex [value]="'A'"></vertex>
-        <table class="graph-table">
-            <tr>
-                <td><vertex [value]="'B'"></vertex><td><vertex [value]="'C'" ></vertex></td>
-            <tr>
-                <td><vertex [value]="'E'" ></vertex></td><td><vertex [value]="'F'" ></vertex></td>
-            </tr>
-            <tr>
-                <td><vertex [value]="'G'" ></vertex></td><td><vertex [value]="'H'" ></vertex></td><td><vertex [value]="'I'" ></vertex></td>
-            </tr>
-        </table>
-</div>
--->
 
-<div class="row">
-	        
 <nav class="navbar navbar-default" *ngIf="selected != null;else other_nav" >
                     <div class="container-fluid">
                         <div class="navbar-header">
@@ -33,30 +13,39 @@
 <ng-template #other_nav >
                                         
 <nav class="navbar navbar-default" >
+		<div  *ngIf="selectedMapping" class="container">					
+				<div class="row">
+					<div class="col-md-10">
+					<a>Mapping Infos : Selected : {{selectedMapping.idf}} <br> Sfa Mapped :  {{selectedMapping.idsfa}} {{selectedMapping.namesfa}}
+							<br> Statut : {{selectedMapping.statut }} </a>
+				</div>
+				<div class="col-md-2">
+					<span class="text-right" style=" margin-top: 30px;"><button type="button" class="btn btn-danger" (click) = "deleteMapping(selectedMapping)" >Supprimer ce Mapping</button></span>
+				</div>
+			</div>
+			</div>
+			
                     <div class="container-fluid">
                         <div class="navbar-header">
+									
                         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                             <ul class="nav navbar-nav" *ngIf="selectedId && selectedName">
                             <li><a>Selected : {{selectedId}} <br>name: {{selectedName}} </a></li>
                             </ul>
-				<ul class="nav navbar-nav" *ngIf="selectedMapping">
-                           <li><a>Selected : {{selectedMapping.idf}} <br> Sfa Mapped :  {{selectedMapping.idsfa}} <br> Statut : {{selectedMapping.statut }} </a></li>
-				
-                            </ul>
-                        </div>
+				        </div>
                         </div>
                     </div>
                 </nav>
   
 </ng-template>	
-        <br>
+<div class="row">       
 	<div  class="col-md-6" *ngIf="ClassificationFi == null" >
 		Données Filiale pas encore disponible
 	</div>
-	<div  class="col-md-6" *ngIf="ClassificationFi?.length > 0" style=" padding-left: 40px;">
+	<div  class="col-md-6" *ngIf="ClassificationFi?.length > 0" style=" padding-left: 30px;">
             <h3 class="card-header text-left">Données Filiale</h3>
 	    	
-	    <div class="z" style="overflow: auto; max-height:410px; float: left; clear: left;white-space: nowrap;">			
+	    <div class="z" style="overflow: auto; max-height:410px; min-width:550px; float: left; clear: left;white-space: nowrap;">			
 
 		<ul>
                     
@@ -116,34 +105,39 @@
 								<span *ngIf="cl2.models?.length > 0">
 								<li *ngFor="let cl22 of cl2.models" style=" list-style: none;">
 		                                                  <span *ngIf="cl22.models?.length > 0;else other_content">
-								<span (click)="toggle(cl22)" class="iconButton" [ngClass]='{"tree-node-no-children": !cl3.showIcon}' >
+								<span (click)="toggle(cl22)" class="iconButton" [ngClass]='{"tree-node-no-children": !cl22.showIcon}' >
                                                                 		{{cl22.icon}}
                                                         		</span>
                                                     		     </span>
 								    <ng-template #other_content>
-                                                   		<span (click)="toggle(cl22)"><img src="/assets/icons/model.png" style=" width:14px; height:14px;"/></span>
+                                                   		<span (click)="toggle(cl22)">{{cl22.icon}}</span><img src="/assets/icons/model.png" style=" width:14px; height:14px;"/>
                                                     		    </ng-template>
                                                                     <span dnd-draggable [dragEnabled]="true" [dragData]="cl22" (click)="getSelectedNode(cl22.id, cl22.name)">
                                                                             <strong>{{cl22.name }}</strong>
-                                                                    </span>
+                                                        </span>
 								 	<!-- PRODUCTS -->
 							<div *ngIf="cl22.expanded">
                                                         <ul>
                                                             <li *ngFor="let product of cl22.products" style=" list-style: none;">
 		                                              <span *ngIf="cl22.products?.length > 0">
-								<span (click)="toggle(product)" class="iconButton" [ngClass]='{"tree-node-no-children": !cl22.showIcon}' >
+								<span (click)="toggle(product)" class="iconButton" [ngClass]='{"tree-node-no-children": !product.showIcon}' >
                                                       		{{product.icon}}
                                                        		</span>
                                               		     </span>
 								<span  dnd-draggable [dragEnabled]="true" [dragData]="product"  >
-                                    					 <span *ngIf="product.mapped ;else other_span" (click)="getInfoMapping(product.id)">
-										<img src="/assets/icons/mapping.png" style=" width:14px; height:14px;"/>
-										<strong [matTooltip]="product.shortdesc" [matTooltipPosition]="positionprod">{{product.name }}</strong>
-									</span>                 
-                                                             	</span> 
-								<ng-template #other_span>
-                                             <span dnd-draggable [dragEnabled]="true" [dragData]="product" (click)="getSelectedNode(product.id, cl2.name)"><strong [matTooltip]="product.shortdesc" [matTooltipPosition]="positionprod">{{product.name }}</strong></span>
-                                        			</ng-template>
+
+										<span *ngIf="product.mapped;else other_span" (click)="getInfoMapping(product)">
+												<img src="/assets/icons/mapping.png" style=" width:14px; height:14px;"/>
+												<strong [matTooltip]="product.shortdesc" [matTooltipPosition]="positionprod">MP: {{product.name }}</strong>
+											</span>
+
+											<ng-template #other_span>
+													<span (click)="getSelectedNode(product.id, product.name)">
+														<strong [matTooltip]="product.shortdesc" [matTooltipPosition]="positionprod">{{product.name }}</strong></span>
+										   </ng-template>
+                           
+                            </span> 
+								
 								
 								<!-- ADD Attribut last LEVEL -->
 								
@@ -164,9 +158,9 @@
 									</span>
 
 								<span class="iconButton" [ngClass]='{"tree-node-no-children": !attr2.showIcon}' >
-                                                      	{{attr2.icon}}<img src="/assets/icons/Important-Icon.png" style=" width:14px; height:14px;"/>
+                                                      	{{attr2.icon}}<!--<img src="/assets/icons/Important-Icon.png" style=" width:14px; height:14px;"/>-->
 								<span>
-            	<span dnd-draggable [dragEnabled]="true" [dragData]="attr2" [dropZones]="['mapping2']" [class.highlighted]="highlightMe" (onDragEnter)="highlightMe=true" (onDragLeave)="highlightMe=false">
+            	<span dnd-draggable [dragEnabled]="true" [dragData]="attr2" [dropZones]="['mapping2']"  (onDragEnter)="highlightMe=true" (onDragLeave)="highlightMe=false">
                                                                        <strong>{{attr2.name }}</strong>
 								
                                                                     </span> 
@@ -238,7 +232,7 @@
                                                         		</span>
                                                     		     </span>
 								    <ng-template #other_content>
-                                                   		<span (click)="toggle(cl4)"><img src="/assets/icons/model.png" style=" width:14px; height:14px;"/></span>
+										 <span (click)="toggle(cl4)"><img src="/assets/icons/model.png" style=" width:14px; height:14px;"/></span>
                                                     		    </ng-template>
                                                                     
 
@@ -268,12 +262,12 @@
                                                              </ng-template>
                                                                     <span dnd-draggable [dragEnabled]="true" [dragData]="cl44" >
 
-									<span *ngIf="cl44.mapped ;else other_span" (click)="getInfoMapping(cl44.id)">
+									<span *ngIf="cl44.mapped;else other_span" (click)="getInfoMapping(cl44)">
 										<img src="/assets/icons/mapping.png" style=" width:14px; height:14px;"/>
 										<strong [matTooltip]="cl44.shortdesc" [matTooltipPosition]="positionprod">{{cl44.name }}</strong>
 									</span>
 										<ng-template #other_span>
-                                                 					<strong [matTooltip]="cl44.shortdesc" [matTooltipPosition]="positionprod"> {{cl44.name }}</strong>
+                                                 					<strong [matTooltip]="cl44.shortdesc" [matTooltipPosition]="positionprod" (click)="getSelectedNode(cl44.id, cl44.name)"> {{cl44.name }}</strong>
                                         					</ng-template>
                                                                     </span> 
 								<!-- HEEEEEEEEEEEEEEEEEEEEEERE --> 
@@ -297,7 +291,7 @@
 								<span *ngIf="attr.mapped">
 										<img src="/assets/icons/mapping.png" style=" width:14px; height:14px;"/>
 									</span>
-                                                      	{{attr.icon}}<img src="/assets/icons/Important-Icon.png" style=" width:14px; height:14px;"/>
+                                                      	{{attr.icon}}
 									<span>
                                                                     <span dnd-draggable [dragEnabled]="true" [dragData]="attr" [dropZones]="['mapping2']">
                                                                             <strong>{{attr.name }}</strong>
@@ -376,14 +370,15 @@
 						
                                                                 <ul>
                                                                     <li *ngFor="let cl5 of cl4.models" style=" list-style: none;">
-		                                                    <span *ngIf="cl5.models?.length > 0;else other_content">
-									<span (click)="toggle(cl5)" class="iconButton" [ngClass]='{"tree-node-no-children": !cl5.showIcon}' >
-                                                                		{{cl5.icon}}
+		                                                    <span *ngIf="cl4.models?.length > 0;else other_content">
+									<span class="iconButton" [ngClass]='{"tree-node-no-children": !cl5.showIcon}' >
+										<span (click)="toggle(cl5)">{{cl5.icon}}</span>
+										<img src="/assets/icons/model.png" style=" width:14px; height:14px;"/>
                                                         		</span>
                                                     		     </span>
 								    <ng-template #other_content>
-                                                        		<span (click)="toggle(cl5)"><img src="/assets/icons/model.png" style=" width:14px; height:14px;"/></span>
-                                                    		    </ng-template>
+                                        <span (click)="toggle(cl5)"><img src="/assets/icons/model.png" style=" width:14px; height:14px;"/></span>
+                        		    </ng-template>
 									<span dnd-draggable [dragEnabled]="true" [dragData]="cl5" (click)="getSelectedNode(cl5.id, cl5.name)">
                                                                    		 <span >
                                                                             		<strong>{{cl5.name }}</strong>
@@ -404,12 +399,13 @@
                                                         	<img src="/assets/icons/product-icon.png" style=" width:10px; height:10px;"/>
                                                              </ng-template>-->
                                                                     <span dnd-draggable [dragEnabled]="true" [dragData]="cl6" >
-									<span *ngIf="cl6.mapped  ;else other_span" (click)="getInfoMapping(cl6.id)">
-										<img src="/assets/icons/mapping.png" style=" width:14px; height:14px;"/>
-										<strong [matTooltip]="cl6.shortdesc" [matTooltipPosition]="positionprod">{{cl6.name }}</strong>
+									<span *ngIf="cl6.mapped;else other_span" (click)="getInfoMapping(cl6)">
+									<img src="/assets/icons/mapping.png" style=" width:14px; height:14px;"/>
+										
+									<strong [matTooltip]="cl6.shortdesc" [matTooltipPosition]="positionprod">MP:{{cl6.name }}</strong>
 									</span>
 										<ng-template #other_span>
-                                                 					<strong [matTooltip]="cl6.shortdesc" [matTooltipPosition]="positionprod">{{cl6.name }}</strong>
+                                                 					<strong [matTooltip]="cl6.shortdesc" [matTooltipPosition]="positionprod" (click)="getSelectedNode(cl6.id, cl6.name)">{{cl6.name }}</strong>
                                         					</ng-template>
 
                                                                     </span> 
@@ -436,7 +432,7 @@
                                                       			<span *ngIf="attr.mapped">
 										<img src="/assets/icons/mapping.png" style=" width:14px; height:14px;"/>
 									</span>
-                                                                            {{attr.icon}}<img src="/assets/icons/Important-Icon.png" style=" width:14px; height:14px;"/>
+                                                                            {{attr.icon}}
 									<strong>{{attr.name }}</strong>
 								
 								
@@ -487,12 +483,24 @@
 
 	</div>
 	<div  class="col-md-6"   *ngIf="loading == false" >
-		Chargement SFA Manutan
+		
+		<mat-card style="width:650px; height: 510px;">
+				<mat-card-content>
+				  <h3 class="example-h2">Chargement SFA Manutan</h3>
+			  
+				  <mat-progress-spinner
+					  class="example-margin"
+					  color="primary"
+					  mode="indeterminate"
+					  >
+				  </mat-progress-spinner>
+				</mat-card-content>
+			  </mat-card>
 	</div>
         <div  class="col-md-6"   *ngIf="loading == true" >
             <h3 class="card-header text-left">Manutan GMC</h3>
             <!--<div class="card-block" style="overflow-y: scroll; height:350px;">-->
-            <div class="z" style="overflow: auto; max-height:410px; float: left; clear: left;white-space: nowrap;">		
+            <div class="z" style="overflow: auto; max-height:410px; min-width:550px; float: left; clear: left;white-space: nowrap;">		
                 <ul>
                     
                     <span *ngFor="let cl of classification">
@@ -566,7 +574,7 @@
                                                  			
                                         				</ng-template>	
 								<span *ngIf = "att.message;else other_meta">
-						<span dnd-droppable class="panel panel-info" [dropZones]="['mapping2']" (onDropSuccess)= "transferDataSuccess2($event , att , cl2.product['0'])">
+						<span dnd-droppable [dropZones]="['mapping2']" (onDropSuccess)= "transferDataSuccess2($event , att , cl2.product['0'])">
                      							<span  (click)="toggle(att)" [matTooltip]="att.message" [matTooltipPosition]="position">
                                                                             <strong>
 										
@@ -577,7 +585,7 @@
 						</span>
 								</span>	
 						<ng-template #other_meta>
-                                        <span  (click)="toggle(att)" dnd-droppable class="panel panel-info" [dropZones]="['mapping2']" (onDropSuccess)= "transferDataSuccess2($event, att , cl2.product['0'])">
+                                        <span  (click)="toggle(att)" dnd-droppable [dropZones]="['mapping2']" (onDropSuccess)= "transferDataSuccess2($event, att , cl2.product['0'])">
 									
 									<strong (click)="toggle(att)" >
 										<span *ngIf="idDropped2 == att.attribut.AttributeID">
@@ -691,7 +699,7 @@
                                         				</ng-template>
 
 						<span *ngIf = "att.message;else other_meta">
-							<span dnd-droppable class="panel panel-info" [dropZones]="['mapping2']" (onDropSuccess)= "transferDataSuccess2($event , att , cl3.product['0'])">
+							<span dnd-droppable [dropZones]="['mapping2']" (onDropSuccess)= "transferDataSuccess2($event , att , cl3.product['0'])">
                      							<span  (click)="toggle(att)" [matTooltip]="att.message" [matTooltipPosition]="position">
                                                                             <strong>
 										
@@ -704,7 +712,7 @@
 
 	       
 					<ng-template #other_meta>
-						<span dnd-droppable class="panel panel-info" [dropZones]="['mapping2']" (onDropSuccess)= "transferDataSuccess2($event , att , cl3.product['0'])">
+						<span dnd-droppable [dropZones]="['mapping2']" (onDropSuccess)= "transferDataSuccess2($event , att , cl3.product['0'])">
                                                  <strong>{{att.name }}
 										 <!--{{att.attribut.AttributeID }}--></strong>
 						</span>
@@ -796,7 +804,7 @@
                                         				</ng-template>
 
 
-					<span dnd-droppable class="panel panel-info" [dropZones]="['mapping2']" (onDropSuccess)= "transferDataSuccess2($event , att, cl4.product['0'])">
+					<span dnd-droppable [dropZones]="['mapping2']" (onDropSuccess)= "transferDataSuccess2($event , att, cl4.product['0'])">
 
 	 								<span *ngIf = "att.message;else other_meta">
 										<span  (click)="toggle(att)" [matTooltip]="att.message" [matTooltipPosition]="position">

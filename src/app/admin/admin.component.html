@@ -6,8 +6,11 @@
                         <div class="navbar-header">
                         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                             <ul class="nav navbar-nav">
-                            <li><a>File Upload </a></li>
-                            </ul>
+                                <li><a href="#" (click) = "uploadpage()">Upload</a></li>
+                                <li class="active"><a a href="#" (click) = "users()">Users</a></li>  
+                                <li class="active"><a a href="#" (click) = "fililale()">Fililale</a></li>
+                                <li class="active"><a a href="#" (click) = "others()">others</a></li>           
+                             </ul>
                         </div>
                         </div>
                     </div>
@@ -26,7 +29,7 @@
                                 </div> -->           
                             </form>
                         </div>
-                        <div class="col-md-8">
+                        <div class="col-md-8" >
                             <h3>File Upload</h3>
                             Nombre de fichiers: {{ uploader?.queue?.length }}
 
@@ -99,7 +102,41 @@
                             </div>
                         </div>
                     </div>
-                </div>
+                         
+                        <div class="task-list">
+                            <h1>Liste des utilisateurs</h1>
+                            <form class="well">
+                              <div class="form-group">
+                                <input type="text" class="form-group"  name="username" [(ngModel)] = "username" placeholder="Username" required size="150px"> 
+                                <input type="text" class="form-group"  name="structure" [(ngModel)] = "structure" placeholder="Structure" required size="150px"> 
+                                <input type="password" class="form-group"  name="password" [(ngModel)] = "password" placeholder="Password" required size="150px"> 
+                                <br><button type="button" class="btn btn-primary btn-block" (click) = "addUser()" >Ajouter un utilisateur</button>
+                            </div>  
+                            </form>    
+                                  <table class="table">
+                                      <thead class="thead-inverse">
+                                        <tr>
+                                          <th>-</th>
+                                          <th>Username</th>
+                                          <th>Structure</th>
+                                          <th>Editer</th>                
+                                          <th>Supprimer</th>
+                                        </tr>
+                                      </thead>
+                                      <tbody>
+                                        <tr *ngFor="let user of userss">
+                                          <th scope="row"><input type="checkbox"></th>
+                                          <td>{{user.username }}</td>
+                                          <td>{{user.structure}}</td>
+                                          <td><button type="button" class="btn btn-success">Edit</button></td>
+                                          <td><button type="button" class="btn btn-danger" (click) = "deleteUser(user._id)" >X</button></td>
+                                        </tr>
+                                        
+                                      </tbody>
+                                    </table>
+                
+                        </div>
+                          <!-- fin container -->
 
 
 

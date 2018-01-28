@@ -38,6 +38,9 @@ export class TreeView implements OnInit {
 	selectedId : any;
 	selectedName : any;
 	color : any;
+	color3 = 'primary';
+	mode = 'indeterminate';
+	value = 50;
 	idDropped:any;
 	idDragged:any;
 	restrictedDrop1: any = null;
@@ -392,9 +395,13 @@ transferDataSuccess($event: any , att: any) {
 		console.log("=> selcted ", $event.dragData );
 		if($event.dragData.techattrs){
 			 //if($event.dragData.techattrs.length > 0){
-                   					$event.dragData.mapped = true;
-							console.log("=> PROD MAPPED ", $event.dragData );
-				
+							
+								if( $event.dragData.mapped == true){
+								   $event.dragData.mapped = false;
+							   }else   
+			 				$event.dragData.mapped = true;
+							console.log("=> PROD INFO ", $event.dragData );
+
 			//}
 		}
 		else if($event.dragData.products){
@@ -481,6 +488,7 @@ transferDataSuccess($event: any , att: any) {
 		} 
 
 
+		
 
 			/*else if($event.dragData.models.length > 0){
 				
@@ -520,20 +528,21 @@ transferDataSuccess($event: any , att: any) {
 		
 	
         this.test = true;
-	 let mapp = {idf : null , idsfa : null , username : null};
+	 let mapp = {idf : null , idsfa : null , namesfa : null, username : null};
 	mapp.idf = $event.dragData.id;
 	mapp.idsfa = att.attribut.ID;
 	mapp.username = this.currentUser.username;
+	mapp.namesfa = att.Name["0"];
         //this.receivedData.push(mapp);
 	this.color = 'cyan';
 	this.idDragged = $event.dragData.id;
 	this.idDropped = att.attribut.ID;
-	this.selected = "Mapping success : classification : "+ mapp.idf +" attribut: "+ mapp.idsfa;
+	//this.selected = "Mapping success : classification : "+ mapp.idf +" attribut: "+ mapp.idsfa;
 	att.mapped = true;
 	var headers = new Headers();
     	headers.append('content-type','application/json');
 
-	$event.dragData.mapped = true;
+//	$event.dragData.mapped = true;
 	att.mapped = true;
     	this._http.post('/api/mappingsfa', JSON.stringify(mapp), {headers:headers})
 	.subscribe(data => {
@@ -579,7 +588,8 @@ transferDataSuccess2($event: any , att: any , sfa:any) {
 		this._http.post('/api/mappingtag', JSON.stringify(mapp2), {headers:headers})
 		.subscribe(data => {
                		this.data = data;
- 			console.log("=> ",this.data._body);
+			 console.log("=> ",this.data._body);
+			 
 			/*if(this.data._body == "true"){
 			
 			} */
@@ -592,21 +602,24 @@ transferDataSuccess2($event: any , att: any , sfa:any) {
 	}
     } 
 
- getInfoMapping(id:any){
+ getInfoMapping(product:any){
 	this.selected = null;
 	this.selectedId = null;
 	this.selectedName = null;
 	//this.selectedMapping =  {_id : null , idf : null , idsfa : null , user : null , structure : null , date : null, statut : null};
-	this._http.get('/api/infomapping1/'+id)
+	this._http.get('/api/infomapping1/'+product.id)
     	.subscribe(data => {
 			if(data !=null){
                			//this.selectedMapping = (<any>data)._body;
 				this.selectedMapping = (<any>data).json();
-				
+					
  				console.log("=> ",this.selectedMapping);
 			}
                 
             	});
 
 } 
+deleteMapping(product:any){	
+
+}
 }
