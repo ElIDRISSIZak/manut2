@@ -116,20 +116,20 @@
                                   <table class="table">
                                       <thead class="thead-inverse">
                                         <tr>
-                                          <th>-</th>
+                                          <!--<th>-</th>-->
                                           <th>Username</th>
                                           <th>Structure</th>
-                                          <th>Editer</th>                
+                                          <!--<th>Editer</th>-->                
                                           <th>Supprimer</th>
                                         </tr>
                                       </thead>
                                       <tbody>
                                         <tr *ngFor="let user of userss">
-                                          <th scope="row"><input type="checkbox"></th>
+                                          <!--<th scope="row"><input type="checkbox"></th>-->
                                           <td>{{user.username }}</td>
                                           <td>{{user.structure}}</td>
-                                          <td><button type="button" class="btn btn-success">Edit</button></td>
-                                          <td><button type="button" class="btn btn-danger" (click) = "deleteUser(user._id)" >X</button></td>
+                                          <!--<td><button type="button" class="btn btn-success">Edit</button></td>-->
+                                          <td><button type="button" class="btn btn-danger" (click) = "deleteUser(user.username)" >X</button></td>
                                         </tr>
                                         
                                       </tbody>

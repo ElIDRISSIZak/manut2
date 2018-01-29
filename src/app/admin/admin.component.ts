@@ -19,9 +19,9 @@ export class AdminComponent {
   public uploader:FileUploader = new FileUploader({url:'/api/upload'});
   currentUser:User;
   user:User;
-  structure:any;
-  username:any;
-  password:any;
+  structure:any = null;
+  username:any= null;
+  password:any= null;
 	arrayFiliale : string [] = [ 'filiale1' , 'Rapide Racking', 'Key' , 'Pichon' , 'Witre' , 'Casal Sport' , 'Ikaros', 'manuco'];
   constructor(private _http: Http ,private _adminService: AdminService , private router: Router , private _location: Location ) {
 
@@ -161,39 +161,52 @@ export class AdminComponent {
 		}
 		addUser(){
 			console.log("ADDING USER");
-			if(this.username == null && this.structure == null && this.password == null){
+			if(this.username == null || this.structure == null || this.password == null){
 				alert("champ obligatoire");
 			}else{
-			var newUser = {
+				var newUser = {
 				structure : this.structure,
 				username : this.username,
 				admin : true,
 				password : this.password  
-			}
-			/*var headers = new Headers();
+				}
+			console.log("=>", newUser);
+			var headers = new Headers();
 			headers.append('content-type','application/json');
-		    this._http.post('http://localhost:3000/api/user', JSON.stringify(this.user), {headers:headers})
+		    	this._http.post('api/user', JSON.stringify(newUser), {headers:headers})
 				  .map(res => res.json())
 				  .subscribe(user => {
 					this.user = user,
 					this.userss.push(this.user)
 					
-				});*/
+				});
 				
-				this.userss.push(newUser);
+			alert("Utilisateur bien ajouté");
+			}
 		}
-		}
-		/*deleteTask(id){
-		  var tasks = this.tasks;
-		  this._taskService.deleteTask(id).subscribe(data => {
-			  if(data.n == 1){
-				  for(var i=0; i<tasks.length;i++){
-					  if(tasks[i]._id == id){
-						  tasks.splice(i,1);
+		 
+		deleteUser(username:any){
+			 var users = this.userss;
+			console.log("=>delete: ", username);
+    			this._http.get("/api/userdel/"+username)
+			.map(res => res.json())
+			.subscribe(data => {
+        			//if(data.n == 1){
+            			for(var i=0; i<this.userss.length ;i++){
+					  if(this.userss[i].username == username){
+						  this.userss.splice(i,1);
 					  }
-				  }
-			  } 
-		  });
-	  }*/
+				  }	
+        			//} 
+		    	});
+
+				
+
+  		}
+
+
+
+
+		  
 	  
 }

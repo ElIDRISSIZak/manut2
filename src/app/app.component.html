@@ -2,7 +2,7 @@
 
 
 
-		<div class="navbar"  style="background-color: #e3f2fd;" role="navigation">
+		<div class="navbar"  style="background-color: #e3f2fd;" role="navigation" *ngIf ="currentUser">
 				<div class="container"> 
 					<div class="navbar-header">
 						<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
@@ -57,6 +57,7 @@
 										</li>
 									</ul>
 								</li>
+								<li class="active"><a a href="#" (click) = "logout()">Logout</a></li>  
 							</ul>
 						</div>
 					</div>
@@ -80,7 +81,7 @@
 	</div>
 	</div>
 </div>-->
-		<div [hidden]="!pageAdmin" >
+		<div [hidden]="!pageAdmin" *ngIf ="currentUser">
 			<admin-app></admin-app>
 
 			<button type="button" class="btn btn-default" (click) = "backclick()">

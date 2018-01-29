@@ -49,6 +49,7 @@ export class TreeView implements OnInit {
 	color2 : any;
 	data: any;
 	selectedMapping: any;
+	selectedMapping2: any;
 	idf :any;
 	arrayFiliale : string [] = [ 'filiale1' , 'Rapide Racking', 'Key' , 'Pichon' , 'Witre' , 'Casal Sport' , 'Ikaros', 'manuco'];
     constructor(private componentResolver: ComponentFactoryResolver,
@@ -396,9 +397,7 @@ transferDataSuccess($event: any , att: any) {
 		if($event.dragData.techattrs){
 			 //if($event.dragData.techattrs.length > 0){
 							
-								if( $event.dragData.mapped == true){
-								   $event.dragData.mapped = false;
-							   }else   
+								   
 			 				$event.dragData.mapped = true;
 							console.log("=> PROD INFO ", $event.dragData );
 
@@ -542,8 +541,8 @@ transferDataSuccess($event: any , att: any) {
 	var headers = new Headers();
     	headers.append('content-type','application/json');
 
-//	$event.dragData.mapped = true;
-	att.mapped = true;
+	$event.dragData.mapped = true;
+	
     	this._http.post('/api/mappingsfa', JSON.stringify(mapp), {headers:headers})
 	.subscribe(data => {
                this.data = data;
@@ -592,7 +591,8 @@ transferDataSuccess2($event: any , att: any , sfa:any) {
 						att.mapped = true;
 						$event.dragData.mapped = true;
 						console.log("=> MAPPING TAG DONE");
-					}
+					}else
+						alert("=> NOT mapped");
 			 console.log("=> ",this.data);
 			 
 			/*if(this.data._body == "true"){
@@ -608,6 +608,9 @@ transferDataSuccess2($event: any , att: any , sfa:any) {
     } 
 
  getInfoMapping(product:any){
+	
+	
+
 	this.selected = null;
 	this.selectedId = null;
 	this.selectedName = null;
@@ -624,7 +627,61 @@ transferDataSuccess2($event: any , att: any , sfa:any) {
             	});
 
 } 
-deleteMapping(product:any){	
+getInfoMapping2(att:any){
 
+	let model = {idf : null , idtagf : null , structure : null};
+		model.idf = att.idf;
+		model.idtagf = att.id;
+		model.structure = this.currentUser.structure;
+	this.selected = null;
+	this.selectedId = null;
+	this.selectedName = null;
+	this.selectedMapping = null;
+	console.log("=> Rentre La");
+	var headers = new Headers();
+    	headers.append('content-type','application/json');
+	this._http.post('/api/infomappingtag', JSON.stringify(model), {headers:headers})
+    	.subscribe(data => {
+			if(data !=null){
+
+				this.selectedMapping2 = (<any>data).json();
+					
+ 				console.log("=> ",this.selectedMapping2);
+			}
+                
+            	});
+
+} 
+deleteMapping(product:any){	
+	
+	let model = {idf : null , idtagf : null , username : null};
+		model.idf = product.id;
+		model.idtagf = 1;
+		model.username = this.currentUser.username;
+	console.log("=> delete Mapping",this.currentUser.username);
+	product.mapped =false;
+	this.selectedMapping = null;
+	if(product.techattrs){
+		for( let att of product.techattrs){
+			att.mapped = false;
+			console.log("=> ALL ATT Non Mappés" );
+		}
+	}
+	var headers = new Headers();
+    	headers.append('content-type','application/json');
+	this._http.post('/api/mappingdelete', JSON.stringify(model), {headers:headers})
+    	.subscribe(data => {
+			//if(data !=null){
+
+				//this.selectedMapping2 = (<any>data).json();
+					
+ 				console.log("=>deleted " );
+			//}
+                
+            	});
+}
+deleteMapping2(product:any){	
+	
+	
 }
 }
