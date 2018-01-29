@@ -987,6 +987,36 @@ router.get('/sfa2/:gmc', (req, res) => {
    });   
 });
 
+
+// test lookup
+
+/* request sfa id + Tag name + name unit */
+router.get('/sfa4/:gmc', (req, res) => {
+	connection((db) => {
+        
+	db.collection('productsmanutan').aggregate([
+		{
+			$unwind: "$AttributeLink"
+		 },
+	  { $lookup:
+		 {
+		   from: 'attribute',
+		   localField: 'attribut.AttributeID',
+		   foreignField: 'attribut.ID',
+		   as: 'inventory_docs'
+		 }
+	   },
+	   {
+		$match: { "inventory_docs": { $ne: [] } }
+	 }
+	  ], function(err, res1) {
+	  console.log("res1");
+	  db.close();
+	  res.json(res1);
+	});
+  });
+  
+});
 // Insert JSON format is database from SFA
     router.get('/insertion3', (req, res) => {
         var collection;
@@ -1205,6 +1235,7 @@ router.post('/mappingtag', cors(), (req, res, next) => {
 	var idtagf = model.idtagf;
 	var idtaggmc = model.idtaggmc;
 	var structure;	
+	var inserted = false;
 	console.log("JONNYYYYY ", userId);
 	db.collection("users").findOne({"username": userId}, function(err, user) {
 		
@@ -1227,6 +1258,9 @@ router.post('/mappingtag', cors(), (req, res, next) => {
 									if( alreadyMap.indexOf(productToMap) == -1) {
 										db.collection('mappingtag').insert({"idf": productToMap, "idtagf":idtagf, "idtaggmc":idtaggmc, "user":userId, "structure": structure, "date": new Date(Date.now()).toISOString(), "statut":"provisoire" });
 											console.log("insertion");
+											inserted = true;
+											res.json(inserted);
+
 									}					
 								});											
 							});																			

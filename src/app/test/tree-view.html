@@ -45,7 +45,7 @@
 	<div  class="col-md-6" *ngIf="ClassificationFi?.length > 0" style=" padding-left: 30px;">
             <h3 class="card-header text-left">Données Filiale</h3>
 	    	
-	    <div class="z" style="overflow: auto; max-height:410px; min-width:550px; float: left; clear: left;white-space: nowrap;">			
+	    <div class="z" style="overflow: auto; max-height:410px; min-width:550px;max-width:600px; float: left; clear: left;white-space: nowrap;">			
 
 		<ul>
                     
@@ -484,8 +484,8 @@
 	</div>
 	<div  class="col-md-6"   *ngIf="loading == false" >
 		
-		<mat-card style="width:650px; height: 510px;">
-				<mat-card-content>
+		<!--<mat-card style="width:650px; height: 510px;">
+				<mat-card-content>-->
 				  <h3 class="example-h2">Chargement SFA Manutan</h3>
 			  
 				  <mat-progress-spinner
@@ -494,8 +494,8 @@
 					  mode="indeterminate"
 					  >
 				  </mat-progress-spinner>
-				</mat-card-content>
-			  </mat-card>
+			<!--	</mat-card-content>
+			  </mat-card>-->
 	</div>
         <div  class="col-md-6"   *ngIf="loading == true" >
             <h3 class="card-header text-left">Manutan GMC</h3>

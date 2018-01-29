@@ -580,15 +580,20 @@ transferDataSuccess2($event: any , att: any , sfa:any) {
 		//this.idDragged = $event.dragData;
 		this.idDropped2 = att;
 		this.idDragged2 = $event.dragData;
-		$event.dragData.mapped = true;
-		att.mapped = true;
+		
+		
 		
 		var headers = new Headers();
     	headers.append('content-type','application/json');
 		this._http.post('/api/mappingtag', JSON.stringify(mapp2), {headers:headers})
 		.subscribe(data => {
-               		this.data = data;
-			 console.log("=> ",this.data._body);
+					   this.data = (<any>data).json();
+					   if(this.data == true){
+						att.mapped = true;
+						$event.dragData.mapped = true;
+						console.log("=> MAPPING TAG DONE");
+					}
+			 console.log("=> ",this.data);
 			 
 			/*if(this.data._body == "true"){
 			
