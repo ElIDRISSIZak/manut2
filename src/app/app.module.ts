@@ -27,7 +27,7 @@ import { FileSelectDirective, FileDropDirective } from 'ng2-file-upload';
 import { DndModule } from 'ng2-dnd';
 import { MatCardModule } from '@angular/material';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
-
+import {MatProgressBarModule} from '@angular/material/progress-bar';
 @NgModule({
   declarations: [
     AppComponent,TaskComponent,LoginComponent,NotFoundComponent,HomeComponent,AuthentificationComponent, TreeView, MyDemoApp, AdminComponent, 		FileSelectDirective , FileDropDirective
@@ -41,7 +41,7 @@ import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
     BrowserAnimationsModule,
     MatTooltipModule,
     MatCardModule,
-    MatProgressSpinnerModule,
+    MatProgressSpinnerModule,MatProgressBarModule,
     DndModule.forRoot()                     // <Add Module: 
   ],
   providers: [DataService, TaskService , AdminService], // <-Add Services
