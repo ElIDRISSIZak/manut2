@@ -15,44 +15,62 @@
 <nav class="navbar navbar-default" >
 		<div  *ngIf="selectedMapping" class="container">					
 			<div class="row">
-				<div class="col-md-10">
-					<a>Mapping Infos : Selected : {{selectedMapping.idf}} <br> Sfa Mapped :  {{selectedMapping.idsfa}} {{selectedMapping.namesfa}}
-							<br> Statut : {{selectedMapping.statut }}  </a>
+				<div class="col-md-5">
+					Mapping Infos : Selected : {{selectedMapping.idf}} <br> Sfa Mapped :  {{selectedMapping.idsfa}} {{selectedMapping.namesfa}}
+							<br> Statut : {{selectedMapping.statut }} 
 				</div>
-				<div class="col-md-2">
-				<span class="text-right" style=" margin-top: 30px;">{{selectedMapping.date |  date:'MM/dd/yyyy'}}<br> {{selectedMapping.user }} - : {{selectedMapping.structure }}  </span>
+				
+		<div class="col-md-4">
+		<span class="text-right" style=" margin-top: 30px;">Mapping Produits :{{indicateur[0]}}/{{indicateur[1]}} ({{calcul1 | number: '2.1-1'}}%)
+<br> Mapping Attribut: {{indicateur[2]}}/{{indicateur[3]}} ({{calcul2 | number: '2.1-1'}}%)</span>
+		</div>
+
+				<div class="col-md-3">
+				<span class="text-right" style=" margin-top: 30px;">{{selectedMapping.date |  date:'dd/MM/yyyy'}}<br> {{selectedMapping.user }} - : {{selectedMapping.structure }}  </span>
 				</div>
+				
 			</div>
 		</div>
 		<div  *ngIf="selectedMapping2" class="container">					
 			<div class="row">
-				<div class="col-md-10">
-					<a>Mapping Infos : Selected : {{selectedMapping2.idf}} <br> ID Produit :  {{selectedMapping.idf}}
-							<br> Mapped By : {{selectedMapping.user }} </a>
+				<div class="col-md-5">
+					Mapping Infos : Selected : {{selectedMapping2.idf}} <br> ID Produit :  {{selectedMapping.idf}}
+							<br> Mapped By : {{selectedMapping.user }} 
 				</div>
-				<div class="col-md-2">
+		<div class="col-md-4">
+		<span class="text-right" style=" margin-top: 30px;">Mapping Produits :{{indicateur[0]}}/{{indicateur[1]}} ({{calcul1 | number: '2.1-1'}}%)
+<br> Mapping Attribut: {{indicateur[2]}}/{{indicateur[3]}} ({{calcul2 | number: '2.1-1'}}%)</span>
+		</div>
+				<div class="col-md-3">
 				<span class="text-right" style=" margin-top: 30px;"><button type="button" class="btn btn-danger" (click) = "deleteMapping(selectedMapping2)" >Supprimer ce Mapping</button></span>
+				</div>
+				
+			</div>
+		</div>
+		<div  *ngIf="selectedId && selectedName" class="container">					
+			<div class="row">
+				<div class="col-md-5">
+					Selected : {{selectedId}} <br>name: {{selectedName}} 
+
+				</div>
+		<div class="col-md-4">
+		<span class="text-right" style=" margin-top: 30px;">Mapping Produits :{{indicateur[0]}}/{{indicateur[1]}} ({{calcul1 | number: '2.1-1'}}%)
+<br> Mapping Attribut: {{indicateur[2]}}/{{indicateur[3]}} ({{calcul2 | number: '2.1-1'}}%)</span>
+		</div>
+				<div class="col-md-3">
+					<a href="mailto:{{destinataire}}?subject={{subject}}&body={{content}}  ">{{creation}}</a>
 				</div>
 			</div>
 		</div>
-		
-			
-                    <div class="container-fluid">
-                        <div class="navbar-header">
-									
-                        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-                            <ul class="nav navbar-nav" *ngIf="selectedId && selectedName">
-                            <li><a>Selected : {{selectedId}} <br>name: {{selectedName}} </a></li>
-                            </ul>
-				        </div>
-                        </div>
-                    </div>
-                </nav>
+		 </nav>
   
 </ng-template>	
 <div class="row">       
-	<div  class="col-md-6" *ngIf="ClassificationFi == null" >
-		Données Filiale pas encore disponible
+	<div  class="col-md-6" *ngIf="ClassificationFi == null" style=" padding-left: 30px;">
+		<h3 class="example-h2">Chargement Données {{currentUser.structure}}</h3>
+			  
+				  <mat-progress-bar style="width:280px;" mode="indeterminate">
+				  </mat-progress-bar>
 	</div>
 	<div  class="col-md-6" *ngIf="ClassificationFi?.length > 0" style=" padding-left: 30px;">
             <h3 class="card-header text-left">Données Filiale</h3>
@@ -68,12 +86,14 @@
                            <span (click)="toggle(cl)" class="iconButton" [ngClass]='{"tree-node-no-children": !cl.showIcon}' >
                                 {{cl.icon}}
                             </span>
-                            <span dnd-draggable [dragEnabled]="true" [dragData]="cl" (click)="getSelectedNode(cl.id, cl.name)">
+                            <span dnd-draggable [dragEnabled]="true" [dragData]="cl" (click)="getSelectedNode(cl.id, cl.name)" [ngClass]='{"selectednode": selectedId == cl.id}'>
 				 
 							<span *ngIf="idDragged == cl.id;else other_span" [ngStyle]="{'background-color' : color}">
+										<img src="/assets/icons/gmc.png" style=" width:14px; height:14px;"/>
 										<strong >{{cl.name }}</strong>
 							</span>
 										<ng-template #other_span>
+											<img src="/assets/icons/gmc.png" style=" width:14px; height:14px;"/>
                                                  					<strong >{{cl.name }}</strong>
                                         					</ng-template>
 						
@@ -96,11 +116,13 @@
                                                	 	{{cl2.icon}}
                                        		 </span>
                                         </ng-template>	
-                                               <span dnd-draggable [dragEnabled]="true" [dragData]="cl2" (click)="getSelectedNode(cl2.id, cl2.name)">
+                                               <span dnd-draggable [dragEnabled]="true" [dragData]="cl2" (click)="getSelectedNode(cl2.id, cl2.name)" [ngClass]='{"selectednode": selectedId == cl2.id}'>
 							<span *ngIf="idDragged == cl2.id;else other_span" [ngStyle]="{'background-color' : color}">
+										<img src="/assets/icons/gmc.png" style=" width:14px; height:14px;"/>
 										<strong>{{cl2.name }}</strong>
 							</span>
 										<ng-template #other_span>
+											<img src="/assets/icons/gmc.png" style=" width:14px; height:14px;"/>
                                                  					<strong>{{cl2.name }}</strong>
                                         					</ng-template>
 
@@ -122,9 +144,10 @@
                                                         		</span>
                                                     		     </span>
 								    <ng-template #other_content>
-                                                   		<span (click)="toggle(cl22)">{{cl22.icon}}</span><img src="/assets/icons/model.png" style=" width:14px; height:14px;"/>
+                                                   		<span (click)="toggle(cl22)">{{cl22.icon}}</span>
                                                     		    </ng-template>
-                                                                    <span dnd-draggable [dragEnabled]="true" [dragData]="cl22" (click)="getSelectedNode(cl22.id, cl22.name)">
+                                                     <span dnd-draggable [dragEnabled]="true" [dragData]="cl22" (click)="getSelectedNode(cl22.id, cl22.name)" [ngClass]='{"selectednode": selectedId == cl22.id}'>
+									     <img src="/assets/icons/sfa.png" style=" width:14px; height:14px;"/>
                                                                             <strong>{{cl22.name }}</strong>
                                                         </span>
 								 	<!-- PRODUCTS -->
@@ -140,6 +163,7 @@
 
 										<span *ngIf="product.mapped;else other_span" (click)="getInfoMapping(product)">
 												<img src="/assets/icons/mapping.png" style=" width:14px; height:14px;"/>
+												<img src="/assets/icons/factor.png" style=" width:14px; height:14px;"/>
 												<strong [matTooltip]="product.shortdesc" [matTooltipPosition]="positionprod">{{product.name }}</strong>
 												<span (click) = "deleteMapping(product)">
 													<img src="/assets/icons/delete.png" style=" width:14px; height:14px;"/>
@@ -147,8 +171,9 @@
 											</span>
 
 											<ng-template #other_span>
-													<span (click)="getSelectedNode(product.id, product.name)">
-														<strong [matTooltip]="product.shortdesc" [matTooltipPosition]="positionprod">{{product.name }}</strong></span>
+											<span (click)="getSelectedNode(product.id, product.name)" [ngClass]='{"selectednode": selectedId == product.id}'>
+												<img src="/assets/icons/factor.png" style=" width:14px; height:14px;"/>
+												<strong [matTooltip]="product.shortdesc" [matTooltipPosition]="positionprod">{{product.name }}</strong></span>
 										   </ng-template>
                            
                             </span> 
@@ -173,10 +198,10 @@
 									
                                                                        		<strong>{{attr2.name }}</strong>
 								
-								</span>
-								<ng-template #other_mapp>
-                                                        		<strong>{{attr2.name }}</strong>
-                                                             	</ng-template>
+									</span>
+									<ng-template #other_mapp>
+                                                        		<strong (click)="getSelectedNode2(attr2.id, attr2.name)" [ngClass]='{"selectednode": selectedId == attr2.id}'>{{attr2.name }}</strong>
+                                                             		</ng-template>
                                                        		</span>
 
 							     <ng-template #other_content>
@@ -218,11 +243,13 @@
                                                     
                                                     
                                                     
-                                                        <span dnd-draggable [dragEnabled]="true" [dragData]="cl3" (click)="getSelectedNode(cl3.id, cl3.name)"> 
+                                                        <span dnd-draggable [dragEnabled]="true" [dragData]="cl3" (click)="getSelectedNode(cl3.id, cl3.name)" [ngClass]='{"selectednode": selectedId == cl3.id}' > 
 									<span *ngIf="idDragged == cl3.id;else other_span" [ngStyle]="{'background-color' : color}">
+										<img src="/assets/icons/gmc.png" style=" width:14px; height:14px;"/>
 										<strong>{{cl3.name }}</strong>
 									</span>
 										<ng-template #other_span>
+											<img src="/assets/icons/gmc.png" style=" width:14px; height:14px;"/>
                                                  					<strong>{{cl3.name }}</strong>
                                         					</ng-template>
 
@@ -240,16 +267,17 @@
 		                                                  <span *ngIf="cl4.products?.length > 0;else other_content">
 								<span (click)="toggle(cl4)" class="iconButton" [ngClass]='{"tree-node-no-children": !cl4.showIcon}' >
                                                                 		{{cl4.icon}} 
-									<img src="/assets/icons/model.png" style=" width:14px; height:14px;"/>
+									<img src="/assets/icons/sfa.png" style=" width:14px; height:14px;"/>
                                                         		</span>
                                                     		     </span>
 								    <ng-template #other_content>
-										 <span (click)="toggle(cl4)"><img src="/assets/icons/model.png" style=" width:14px; height:14px;"/></span>
+										 <span (click)="toggle(cl4)"><img src="/assets/icons/sfa.png" style=" width:14px; height:14px;"/></span>
                                                     		    </ng-template>
                                                                     
 
-							<span dnd-draggable [dragEnabled]="true" [dragData]="cl4" (click)="getSelectedNode(cl4.id, cl4.name)"> 
+							<span dnd-draggable [dragEnabled]="true" [dragData]="cl4" (click)="getSelectedNode(cl4.id, cl4.name)" [ngClass]='{"selectednode": selectedId == cl4.id}'> 
 									<span>
+							
                        		                                          <strong>{{cl4.name }}</strong>
                                                                     	</span>
 										
@@ -268,11 +296,12 @@
 								<span (click)="toggle(cl44)" class="iconButton" [ngClass]='{"tree-node-no-children": !cl44.showIcon}' >
                                                       	{{cl44.icon}}
                                                        		</span>
+								<img src="/assets/icons/factor.png" style=" width:14px; height:14px;"/>
                                               		     </span>
 							     <ng-template #other_content>
-                                                        	<img src="/assets/icons/product-icon.png" style=" width:10px; height:10px;"/>
+                                                        	<img src="/assets/icons/factor.png" style=" width:14px; height:14px;"/>
                                                              </ng-template>
-                                                                    <span dnd-draggable [dragEnabled]="true" [dragData]="cl44" >
+                                                <span dnd-draggable [dragEnabled]="true" [dragData]="cl44" >
 
 									<span *ngIf="cl44.mapped;else other_span" (click)="getInfoMapping(cl44)">
 										<img src="/assets/icons/mapping.png" style=" width:14px; height:14px;"/>
@@ -282,7 +311,7 @@
 										</span>
 									</span>
 									<ng-template #other_span>
-                                                 			<strong [matTooltip]="cl44.shortdesc" [matTooltipPosition]="positionprod" (click)="getSelectedNode(cl44.id, cl44.name)">
+                                      <strong [matTooltip]="cl44.shortdesc" [matTooltipPosition]="positionprod" (click)="getSelectedNode(cl44.id, cl44.name)" [ngClass]='{"selectednode": selectedId == cl44.id}'>
 										 {{cl44.name }}
 									</strong>
                                         					</ng-template>
@@ -310,7 +339,7 @@
 										<strong>{{attr.name }}</strong>
 									</span>
 									<ng-template #other_mapp>
-                                                        				<strong>{{attr.name }}</strong>
+                                                        <strong (click)="getSelectedNode2(attr.id, attr.name)" [ngClass]='{"selectednode": selectedId==attr.id}'>{{attr.name }}</strong>
                                                              		</ng-template>
                                                       	
 									</span>
@@ -355,11 +384,13 @@
                                                                 		{{cl4.icon}}
                                                         		</span>
                                                     		    </ng-template>
-                                                                    <span dnd-draggable [dragEnabled]="true" [dragData]="cl4" (click)="getSelectedNode(cl4.id, cl4.name)">
-									<span *ngIf="idDragged == cl4.id;else other_span" [ngStyle]="{'background-color' : color}">
+                                                                    <span dnd-draggable [dragEnabled]="true" [dragData]="cl4" (click)="getSelectedNode(cl4.id, cl4.name)" [ngClass]='{"selectednode": selectedId == cl4.id}'>
+									<span *ngIf="idDragged == cl4.id;else other_span" >
+										<img src="/assets/icons/gmc.png" style=" width:14px; height:14px;"/>
 										<strong>{{cl4.name }}</strong>
 									</span>
 										<ng-template #other_span>
+											<img src="/assets/icons/gmc.png" style=" width:14px; height:14px;"/>
                                                  					<strong>{{cl4.name }}</strong>
                                         					</ng-template>
                                                                             
@@ -391,11 +422,11 @@
 		                                                    <span *ngIf="cl4.models?.length > 0;else other_content">
 									<span class="iconButton" [ngClass]='{"tree-node-no-children": !cl5.showIcon}' >
 										<span (click)="toggle(cl5)">{{cl5.icon}}</span>
-										<img src="/assets/icons/model.png" style=" width:14px; height:14px;"/>
+										<img src="/assets/icons/sfa.png" style=" width:14px; height:14px;"/>
                                                         		</span>
                                                     		     </span>
 								    <ng-template #other_content>
-                                        <span (click)="toggle(cl5)"><img src="/assets/icons/model.png" style=" width:14px; height:14px;"/></span>
+                                        <span (click)="toggle(cl5)"><img src="/assets/icons/sfa.png" style=" width:14px; height:14px;"/></span>
                         		    </ng-template>
 									<span dnd-draggable [dragEnabled]="true" [dragData]="cl5" (click)="getSelectedNode(cl5.id, cl5.name)">
                                                                    		 <span >
@@ -426,7 +457,8 @@
 										</span>
 									</span>
 									<ng-template #other_span>
-                                                 			<strong [matTooltip]="cl6.shortdesc" [matTooltipPosition]="positionprod" (click)="getSelectedNode(cl6.id, cl6.name)">{{cl6.name }}</strong>
+                                                 			<strong [matTooltip]="cl6.shortdesc" [matTooltipPosition]="positionprod" (click)="getSelectedNode(cl6.id, cl6.name)"
+			[ngClass]='{"selectednode": selectedId == cl6.id}'>{{cl6.name }}</strong>
                                         				</ng-template>
 
                                                                     </span> 
@@ -457,11 +489,12 @@
 									</span>
 									<ng-template #other_mapp>
                                                         	
-                                                                           	<strong>{{attr.name }}</strong>
+                                                                           	<strong (click)="getSelectedNode2(attr.id, attr.name)"
+			[ngClass]='{"selectednode": selectedId == attr.id}'>{{attr.name }}</strong>
 								 
                                                              		</ng-template>
-                                                                            {{attr.icon}}
-									<strong>{{attr.name }}</strong>
+                                                                            <!--{{attr.icon}}
+									<strong>{{attr.name }}</strong>-->
 								
 								
                                                        		</span>
@@ -536,6 +569,7 @@
                                 {{cl.icon}}
                             </span>
                             <span  [matTooltip]="cl.MetaData['0'].Value['1']._" [matTooltipPosition]="position">
+				<img src="/assets/icons/gmc.png" style=" width:14px; height:14px;"/>
                                 <strong>{{cl.Name["0"] }}</strong>
                                 <!-- {{cl.Metadata["0"]["@"].ID cl.attribut.ID}} -->
                             </span>
@@ -556,6 +590,7 @@
                                         </ng-template>	
                                         <span *ngIf="cl2.MetaData">
                                             <span  [matTooltip]="cl2.MetaData['0'].Value['0']._" [matTooltipPosition]="position">
+						    <img src="/assets/icons/gmc.png" style=" width:14px; height:14px;"/>
                                                     <strong>{{cl2.Name["0"] }}</strong>
                                             </span> 
                                         </span> 
@@ -574,7 +609,10 @@
 						</span>
 										<ng-template #other_span>
 
-                                                <span *ngIf="cl2.product['0'].Name" [matTooltip]="cl2.product['0'].attribut.ID" [matTooltipPosition]="position">{{cl2.product["0"].Name["0"]}}</span>
+                                                <span *ngIf="cl2.product['0'].Name" [matTooltip]="cl2.product['0'].attribut.ID" [matTooltipPosition]="position">
+						<img src="/assets/icons/sfa.png" style=" width:14px; height:14px;"/>
+							{{cl2.product["0"].Name["0"]}}
+						</span>
                                         					</ng-template>
 		</span>
 
@@ -632,21 +670,25 @@
 
 
 								<ul *ngIf ="cl2.product">
-                                                                    <li *ngFor="let pr2 of cl2.product.Product" style=" list-style: none;">
-                                                                        <img src="/assets/icons/icon-done.png" style=" width:10px; height:10px;"/>
-                                                                        <span (click)="toggle(pr2)" *ngIf = "pr2.Name;else other_name">
+                                                                    <li *ngFor="let pr2 of cl2.product['0'].Product" style=" list-style: none;">
+                                                                  	
+                                                                        <span  *ngIf = "pr2.Name;else other_name">
+										<span (click)="toggle3(pr2)" class="iconButton" [ngClass]='{"tree-node-no-children": !pr2.showIcon}' >
+                                               	 				{{pr2.icon}}
+                                       		 				</span>
+									<img src="/assets/icons/factor.png" style=" width:14px; height:14px;"/>
                                                                             <strong>{{pr2.Name["0"] }}</strong>
                                                                         </span> 
 									<ng-template #other_name>
-									<span>
+									<!--<span>
                                                                             <strong>----</strong>
-                                                                        </span> 
+                                                                        </span> -->
                                                     			</ng-template>
 
 						<div *ngIf="pr2.expanded">
 								<ul *ngIf = " pr2.Product">
                                                                     <li *ngFor="let pr5 of pr2.Product" style=" list-style: none;">
-                                                                        <img src="/assets/icons/icon-done.png" style=" width:10px; height:10px;"/>
+                                                                        <img src="/assets/icons/mig.png" style=" width:14px; height:14px;"/>
                                                                         <span (click)="toggle(pr5)" *ngIf = "pr5.Name;else other_name">
                                                                             <strong>{{pr5.Name["0"] }}</strong>
                                                                         </span> 
@@ -690,6 +732,7 @@
                                                     
                                                     
                                                         <span >
+								<img src="/assets/icons/gmc.png" style=" width:14px; height:14px;"/>
                                                                 <strong>{{cl3.Name["0"] }}</strong>
                                                         </span> 
                                                         <div *ngIf="cl3.expanded">
@@ -700,7 +743,10 @@
 										<img src="/assets/icons/mapping.png" style=" width:14px; height:14px;"/>{{cl3.product["0"].Name["0"]}}
 										</span>
 										<ng-template #other_span>
-                                                 	<span *ngIf="cl3.product['0'].Name" [matTooltip]="cl3.product['0'].attribut.ID" [matTooltipPosition]="position">{{cl3.product["0"].Name["0"]}}</span>
+                                                 	<span *ngIf="cl3.product['0'].Name" [matTooltip]="cl3.product['0'].attribut.ID" [matTooltipPosition]="position">
+							<img src="/assets/icons/sfa.png" style=" width:14px; height:14px;"/>
+								{{cl3.product["0"].Name["0"]}}
+							</span>
                                         					</ng-template>
 							</span>
 								
@@ -748,29 +794,25 @@
                                                                 </div>
 </li></ul>
 								</span></div>
-								<ul *ngIf = " cl3.product">
-                                                                    <li *ngFor="let pr1 of cl3.product.Product" style=" list-style: none;">
-                                                                        <img src="/assets/icons/icon-done.png" style=" width:10px; height:10px;"/>
-                                                                        <span (click)="toggle(pr1)" *ngIf = "pr1.Name;else other_name">
+								<ul *ngIf = " cl3.product['0']">
+                                                                    <li *ngFor="let pr1 of cl3.product['0'].Product" style=" list-style: none;">
+                                                                        
+                                                                        <span  *ngIf = "pr1.Name;else other_name">
+										<span (click)="toggle3(pr1)" class="iconButton" [ngClass]='{"tree-node-no-children": !pr1.showIcon}' >
+                                               	 				{{pr1.icon}}
+                                       		 				</span>
+										<img src="/assets/icons/factor.png" style=" width:14px; height:14px;"/>
                                                                             <strong>{{pr1.Name["0"] }}</strong>
                                                                         </span> 
-									<ng-template #other_name>
-									<span>
-                                                                            <strong>----</strong>
-                                                                        </span> 
-                                                    			</ng-template>
+									
 						<div *ngIf="pr1.expanded">
 								<ul *ngIf = " pr1.Product">
                                                                     <li *ngFor="let pr4 of pr1.Product" style=" list-style: none;">
-                                                                        <img src="/assets/icons/icon-done.png" style=" width:10px; height:10px;"/>
+                                                                        <img src="/assets/icons/mig.png" style=" width:14px; height:14px;"/>
                                                                         <span (click)="toggle(pr4)" *ngIf = "pr4.Name;else other_name">
                                                                             <strong>{{pr4.Name["0"] }}</strong>
                                                                         </span> 
-									<ng-template #other_name>
-									<span>
-                                                                            <strong>----</strong>
-                                                                        </span> 
-                                                    			</ng-template>
+									
 									<!--<div *ngIf="cl4.expanded">
 										<span *ngIf="cl4.product">
 										{{cl4.product.Name["0"]}}
@@ -795,6 +837,7 @@
                                                         		</span>
 
                                                                         <span >
+									    <img src="/assets/icons/gmc.png" style=" width:14px; height:14px;"/>
                                                                             <strong>{{cl4.Name["0"] }}</strong>
                                                                         </span> 
 									
@@ -806,7 +849,10 @@
 										<img src="/assets/icons/mapping.png" style=" width:14px; height:14px;"/>{{cl4.product["0"].Name["0"]}}
 										</span>
 										<ng-template #other_span>
-                                    		<span *ngIf="cl4.product['0'].Name" [matTooltip]="cl4.product['0'].attribut.ID" [matTooltipPosition]="position">{{cl4.product["0"].Name["0"]}}</span>
+                                    		<span *ngIf="cl4.product['0'].Name" [matTooltip]="cl4.product['0'].attribut.ID" [matTooltipPosition]="position">
+							<img src="/assets/icons/sfa.png" style=" width:14px; height:14px;"/>
+							{{cl4.product["0"].Name["0"]}}
+						</span>
                                         					</ng-template>
 			</span>
 			<span *ngIf="cl4.product['0'].AttributeLink?.length > 0;else other_content" >
@@ -860,42 +906,44 @@
 
 							</div></li></ul>
 						</span>
-									<!--<ul *ngIf = " cl4.product">
-                                                                    <li *ngFor="let pr of cl4.product.Product" style=" list-style: none;">
-                                                                        <img src="/assets/icons/icon-done.png" style=" width:10px; height:10px;"/>
-                                                                        <span (click)="toggle(pr)" *ngIf = "pr.Name;else other_name">
+									<ul *ngIf = " cl4.product">
+                                                                    <li *ngFor="let pr of cl4.product[0].Product" style=" list-style: none;">
+                                                                        
+                                                                        <span *ngIf = "pr.Name;else other_name">
+									<span (click)="toggle3(pr)" class="iconButton" [ngClass]='{"tree-node-no-children": !pr.showIcon}' >
+                                               	 				{{pr.icon}}
+                                       		 				</span>
+									<img src="/assets/icons/factor.png" style=" width:14px; height:14px;"/>
                                                                             <strong>{{pr.Name["0"] }}</strong>
                                                                         </span> 
-									<ng-template #other_name>
+									<!--<ng-template #other_name>
 									<span>
                                                                             <strong>----</strong>
                                                                         </span> 
-                                                    			</ng-template>
+                                                    			</ng-template>-->
 									
 							<div *ngIf="pr.expanded">
 								<ul *ngIf = " pr.Product">
                                                                     <li *ngFor="let pr3 of pr.Product" style=" list-style: none;">
-                                                                        <img src="/assets/icons/icon-done.png" style=" width:10px; height:10px;"/>
+                                                                        <img src="/assets/icons/mig.png" style=" width:14px; height:14px;"/>
                                                                         <span (click)="toggle(pr3)" *ngIf = "pr3.Name;else other_name">
                                                                             <strong>{{pr3.Name["0"] }}</strong>
                                                                         </span> 
 									<ng-template #other_name>
-									<span>
-                                                                            <strong>----</strong>
-                                                                        </span> 
+									
                                                     			</ng-template>
-									<div *ngIf="cl4.expanded">
+									<!--<div *ngIf="cl4.expanded">
 										<span *ngIf="cl4.product">
 										{{cl4.product.Name["0"]}}
 										</span>
-									</div>
+									</div>-->
                                                                     </li>
 									
                                                                 </ul>
 							</div>
                                                                     </li>
 									
-                                                                </ul>-->
+                                                                </ul>
 
 									</div>
                                                                     </li>

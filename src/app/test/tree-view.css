@@ -41,6 +41,10 @@ highlighted{
   opacity:0.7;
   border: 1px dashed #000;
 }
-
+.selectednode {
+    
+    opacity:0.7;
+    border: 2px dashed #000;
+}
 
 

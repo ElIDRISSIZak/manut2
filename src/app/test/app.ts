@@ -26,9 +26,9 @@ export class MyDemoApp implements OnInit {
         this._http.get("/api/classificationGMC")
         .map(Classification => <Classification[]>Classification.json())        
          .subscribe(Classification =>{
-	   setTimeout(()=>{ this.Classification = Classification }, 4000),
-	   this.Classification = Classification,
-         console.log("Inside sucscribeNNNNNNNNNNNNNNNNNNNNNN from app.ts",this.Classification)
+	   setTimeout(()=>{ this.Classification = Classification }, 2000),
+	   this.Classification = Classification
+
 	});
          
      }

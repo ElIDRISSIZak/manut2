@@ -51,7 +51,15 @@ export class TreeView implements OnInit {
 	selectedMapping: any;
 	selectedMapping2: any;
 	idf :any;
-	arrayFiliale : string [] = [ 'filiale1' , 'Rapide Racking', 'Key' , 'Pichon' , 'Witre' , 'Casal Sport' , 'Ikaros', 'manuco'];
+	arrayFiliale : string [] = [ 'filiale1' , 'rapideracking', 'key' , 'pichon' , 'witre' , 'casalsport' , 'ikaros', 'manuco'];
+	subject: any;
+	content:any;
+	destinataire:any;
+	creation:any;
+	indicateur:any;
+	reste : number;
+	calcul1:any;
+	calcul2:any;
     constructor(private componentResolver: ComponentFactoryResolver,
                 private router: Router, private _http: Http){
 	this.currentUser = JSON.parse(localStorage.getItem("currentUser"));    
@@ -73,6 +81,7 @@ export class TreeView implements OnInit {
          this.getAttribut();
 	this.getDataFiliale();
 	//console.log("loading Finish oninit -- => ",this.loading);
+	this.getIndicateur();
     }
     /*expand(){
         this.expanded = !this.expanded;
@@ -154,6 +163,12 @@ export class TreeView implements OnInit {
 					for( let att of cl2.product['0'].AttributeLink){
 						att.message = "ID : "+att.attribut.AttributeID+" units "+att.units;
 					}
+					for( let prod of cl2.product['0'].Product){
+						prod.icon = '+';
+						prod.expanded = false;
+                   				prod.checked = false;
+                   				prod.showIcon = true;
+					}
 				}
 			}
 		})}, 200);
@@ -175,6 +190,12 @@ setTimeout(()=>{ cl3.product = this._http.get("/api/sfa2/"+cl3.attribut.ID)
 						cl3.product['0'].icon = '+';
 					for( let att of cl3.product['0'].AttributeLink){
 						att.message = "ID : "+att.attribut.AttributeID+" units "+att.units;
+					}
+					for( let prod of cl3.product['0'].Product){
+						prod.icon = '+';
+						prod.expanded = false;
+                   				prod.checked = false;
+                   				prod.showIcon = true;
 					}
 				}
 			}
@@ -200,12 +221,19 @@ setTimeout(()=>{ cl3.product = this._http.get("/api/sfa2/"+cl3.attribut.ID)
 					for( let att of cl4.product['0'].AttributeLink){
 						att.message = "ID : "+att.attribut.AttributeID+" units "+att.units;
 					}
+					for( let prod of cl4.product['0'].Product){
+						prod.icon = '+';
+						prod.expanded = false;
+                   				prod.checked = false;
+                   				prod.showIcon = true;
+					}
 				}
 
 				console.log("count => ",this.count );
-				if(this.count == 1826){
+				if(this.count > 1626){
                				this.loading = true;
 					console.log("count final => ",this.count );
+					this.count =0;
 				}
 			}
 		})}, 200);
@@ -378,9 +406,7 @@ setTimeout(()=>{ cl3.product = this._http.get("/api/sfa2/"+cl3.attribut.ID)
         	return this._http.get("/api/sfa/"+id)
         	.map(product => <any>product.json())        
          	.subscribe(product =>{
-	  	 //setTimeout(()=>{ this.product = product }, 2000),
-	  	 this.product = product,
-         	console.log("SFA PROD => ",this.product)
+	  	 this.product = product
 
 		});
         
@@ -399,7 +425,7 @@ transferDataSuccess($event: any , att: any) {
 							
 								   
 			 				$event.dragData.mapped = true;
-							console.log("=> PROD INFO ", $event.dragData );
+							this.getIndicateur();
 
 			//}
 		}
@@ -409,7 +435,7 @@ transferDataSuccess($event: any , att: any) {
 				///////////////////////////////////////////
 				for( let prod of $event.dragData.products){
                    					prod.mapped = true;
-							console.log("=> PROD MAPp from model", prod );
+							this.getIndicateur();
 				}
 			}
 		}else if($event.dragData.models){
@@ -418,7 +444,7 @@ transferDataSuccess($event: any , att: any) {
 										if(model.products.length > 0){
 											for( let prod of model.products){
                    									prod.mapped = true;
-											console.log("=> X", prod );
+											this.getIndicateur();
 											}
 										}	
                    							}
@@ -441,13 +467,13 @@ transferDataSuccess($event: any , att: any) {
 							if(cl2.classification){             //MODELS HERE
 								if(cl2.classification.length > 0){	
 								for( let cl3 of cl2.classification){
-									console.log("=> classif", cl3 );
+									
 								if(cl3.models.length > 0){
 									for( let model of cl3.models){
 										if(model.products.length > 0){
 											for( let prod of model.products){
                    										prod.mapped = true;
-												console.log("=> L1", prod );
+												this.getIndicateur();
 											}
 										}	
                    							}
@@ -461,7 +487,7 @@ transferDataSuccess($event: any , att: any) {
 										if(model.products.length > 0){
 											for( let prod of model.products){
                    									prod.mapped = true;
-											console.log("=> L2", prod );
+											this.getIndicateur();
 											}
 										}	
                    							}
@@ -473,7 +499,7 @@ transferDataSuccess($event: any , att: any) {
 							if(model.products.length > 0){
 								for( let prod of model.products){
                    							prod.mapped = true;
-									console.log("=> L3", prod );
+									this.getIndicateur();
 								}
 							}	
                    					
@@ -486,43 +512,6 @@ transferDataSuccess($event: any , att: any) {
 			}
 		} 
 
-
-		
-
-			/*else if($event.dragData.models.length > 0){
-				
-				for( let model of $event.dragData.models){
-                   			if(model.products.length > 0){
-
-						for( let prod of model.products){
-                   					prod.mapped = true;
-							console.log("=> PROD MAPp from last classif", prod );
-						}
-					}
-
-				}
-			}*/
-			
-		/*}else if($event.dragData.classification){
-			 if($event.dragData.classification.length > 0){
-				
-				for( let cl of $event.dragData.classification){
-                   			if(cl.models.length > 0){
-
-						for( let model of cl.models){
-							if(model.products.length > 0){
-								for( let prod of model.products){
-                   							prod.mapped = true;
-									console.log("=> PROD MAPp from last classif", prod );
-								}
-							}	
-                   					
-						}
-					}
-
-				}
-			}
-		} */
  
 		
 	
@@ -532,7 +521,7 @@ transferDataSuccess($event: any , att: any) {
 	mapp.idsfa = att.attribut.ID;
 	mapp.username = this.currentUser.username;
 	mapp.namesfa = att.Name["0"];
-        //this.receivedData.push(mapp);
+
 	this.color = 'cyan';
 	this.idDragged = $event.dragData.id;
 	this.idDropped = att.attribut.ID;
@@ -547,9 +536,7 @@ transferDataSuccess($event: any , att: any) {
 	.subscribe(data => {
                this.data = data;
  		console.log("=> ",this.data._body);
-		/*if(this.data._body == "true"){
-			
-		} */
+		this.getIndicateur();
                 
             });
 
@@ -559,12 +546,27 @@ getSelectedNode(id:any, name: any){
 	this.selected = null;
 	this.selectedId = id;
 	this.selectedName = name;
+	this.subject = this.currentUser.structure+" : Demande de création SFA pour : "+this.selectedName;
+	this.content = "Bonjour%0A%0ANous souhaitons la création d'une SFA pour le produit "+this.selectedName+".%0A%0AVos commentaires.%0A%0ACordialement.";
+	this.destinataire = "GRP_STEP_ROLLOUT";
+	this.creation ="Demande de creation d'une SFA";
+	this.selectedMapping = null;
+	console.log("cc",id,"  ==> ", name);
+} 
+getSelectedNode2(id:any, name: any){
+	this.selected = null;
+	this.selectedId = id;
+	this.selectedName = name;
+	this.subject = this.currentUser.structure+" : Demande de création de TAG pour : "+this.selectedName;
+	this.content = "Bonjour%0A%0ANous souhaitons la création de TAG pour l'attribut:  "+this.selectedName+"("+this.selectedId+").%0A%0AVos commentaires.%0A%0ACordialement.";
+	this.destinataire = "GRP_STEP_ROLLOUT";
+	this.creation ="Demande de creation d'un TAG";
 	this.selectedMapping = null;
 	console.log("cc",id,"  ==> ", name);
 } 
 // Mapping Produit TO SFA
 transferDataSuccess2($event: any , att: any , sfa:any) {
-	if(window.confirm('Vous allez mapper Confirmer le mapping ?')){
+	if(window.confirm('Vous allez mapper '+ $event.dragData.name+ 'Confirmer le mapping ?')){
        		
         	this.test = true;
 	 	let mapp2 = {idf : null , idtagf : null , idsfa : null , idtaggmc : null, user : null};
@@ -590,6 +592,7 @@ transferDataSuccess2($event: any , att: any , sfa:any) {
 					   if(this.data == true){
 						att.mapped = true;
 						$event.dragData.mapped = true;
+						this.getIndicateur();
 						console.log("=> MAPPING TAG DONE");
 					}else
 						alert("=> NOT mapped");
@@ -620,7 +623,7 @@ transferDataSuccess2($event: any , att: any , sfa:any) {
 			if(data !=null){
                			//this.selectedMapping = (<any>data)._body;
 				this.selectedMapping = (<any>data).json();
-					
+				this.getIndicateur();	
  				console.log("=> ",this.selectedMapping);
 			}
                 
@@ -637,16 +640,16 @@ getInfoMapping2(att:any){
 	this.selectedId = null;
 	this.selectedName = null;
 	this.selectedMapping = null;
-	console.log("=> Rentre La");
+	console.log("=> Rentre La", model);
 	var headers = new Headers();
     	headers.append('content-type','application/json');
 	this._http.post('/api/infomappingtag', JSON.stringify(model), {headers:headers})
     	.subscribe(data => {
 			if(data !=null){
-
+				console.log("=data received ",data);
 				this.selectedMapping2 = (<any>data).json();
 					
- 				console.log("=> ",this.selectedMapping2);
+ 				console.log("=TAG infos> ",this.selectedMapping2);
 			}
                 
             	});
@@ -664,6 +667,7 @@ deleteMapping(product:any){
 	if(product.techattrs){
 		for( let att of product.techattrs){
 			att.mapped = false;
+			this.getIndicateur();
 			console.log("=> ALL ATT Non Mappés" );
 		}
 	}
@@ -680,6 +684,23 @@ deleteMapping(product:any){
                 
             	});
 }
+
+getIndicateur() {
+	
+        	return this._http.get("/api/indicateur/"+this.currentUser.structure)
+        	.map(indicateur => <any>indicateur.json())        
+         	.subscribe(indicateur =>{
+	  	 //setTimeout(()=>{ this.product = product }, 2000),
+	  	 this.indicateur = indicateur,
+		this.reste = this.indicateur[1]-this.indicateur[0];
+		this.calcul1 = (this.indicateur[0]/this.indicateur[1])*100;
+		this.calcul2 = (this.indicateur[2]/this.indicateur[3])*100;
+         	console.log("Indicateur Mapping=> ",this.indicateur)
+
+		});
+        
+}		
+
 deleteMapping2(product:any){	
 	
 	

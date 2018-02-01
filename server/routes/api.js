@@ -15,6 +15,7 @@ var multer = require('multer');
 const xlsxj = require("xlsx-to-json");
 // require csvtojson
 var csvToJson = require('convert-csv-to-json');
+var Promise = require("bluebird");
 
 // Connect
 const connection = (closure) => {
@@ -1150,35 +1151,38 @@ router.get('/sfa4/:gmc', (req, res) => {
         collection = db.collection('filiale1');
          ////console.log(collection);
     });
- 
+
+
     var json = csvToJson.getJsonFromCsv("uploads/filiale1.csv");
-    for(var i=0; i<json.length;i++){
-        //console.log(json[i]);
-    }
+
 
 
    var fs = require('fs');
         var fileInputName = 'uploads/filiale1.csv'; 
         var fileOutputName = 'uploads/fil.json';
          
-        csvToJson.generateJsonFileFromCsv(fileInputName,fileOutputName);
-      fs.readFile(fileOutputName, 'utf8', function (erreur, donnees) {
-         if (erreur)
-            throw erreur; // Vous pouvez gérer les erreurs avant de parser le JSON
-         var filiales1 = JSON.parse(donnees);
-         
-            connection((db) => {
-               db.collection('filiale1').deleteMany({}); 
-            });
-         
-         filiales1.forEach((objf1) => {
-            
-                connection((db) => {
-                    db.collection('filiale1').insert(objf1, {safe: true});
-                });
-         });  
-	res.json(donnees);  
-      }); 
+ 	var p = Promise.resolve();
+	p.then( function() {
+          return csvToJson.generateJsonFileFromCsv(fileInputName,fileOutputName);
+	}).then( function() {
+	      fs.readFile(fileOutputName, 'utf8', function (erreur, donnees) {
+		 if (erreur)
+		    throw erreur; // Vous pouvez gérer les erreurs avant de parser le JSON
+		 var filiales1 = JSON.parse(donnees);
+		 
+		    connection((db) => {
+		       db.collection('filiale1').deleteMany({}); 
+		    });
+		 
+		 filiales1.forEach((objf1) => {
+		    
+			connection((db) => {
+			    db.collection('filiale1').insert(objf1, {safe: true});
+			});
+		 });  
+		res.json(donnees);  
+	      }); 
+	});
 	
   });
     
@@ -1287,7 +1291,7 @@ router.post('/mappingtag', cors(), (req, res, next) => {
 	var idtagf = model.idtagf;
 	var idtaggmc = model.idtaggmc;
 	var structure;	
-	var inserted = false;
+	var inserted = true;
 	console.log("test  ", userId);
 	db.collection("users").findOne({"username": userId}, function(err, user) {
 		
@@ -1310,8 +1314,8 @@ router.post('/mappingtag', cors(), (req, res, next) => {
 									if( alreadyMap.indexOf(productToMap) == -1) {
 										db.collection('mappingtag').insert({"idf": productToMap, "idtagf":idtagf, "idtaggmc":idtaggmc, "user":userId, "structure": structure, "date": new Date(Date.now()).toISOString(), "statut":"provisoire" });
 											console.log("insertion");
-											inserted = true;
-											res.json(inserted);
+											
+											
 
 									}					
 								});											
@@ -1321,6 +1325,7 @@ router.post('/mappingtag', cors(), (req, res, next) => {
 				});
 		}
 	});
+	res.json(inserted)
 });
 
 // find idProduit to get all Mapping informations
@@ -2062,26 +2067,21 @@ router.post('/csv', cors(), (req, res, next) => {
 	 var fileOutputName = 'uploads/output.json';
 	 
 	 
-	csvToJson.fieldDelimiter('|').generateJsonFileFromCsv(fileInputName,fileOutputName);
-	var seconds = 60;
-	var await = new Date(new Date().getTime() + seconds * 1000);
-	while(await > new Date()){
-	   
-	}
+	
+	
 	console.log("terminer");
 	
 
-   /*setTimeout(function() {       
-		csvToJson.fieldDelimiter('|').generateJsonFileFromCsv(fileInputName,fileOutputName);
-   }, 50000);*/
-	 
-	 fs.readFile(fileOutputName, 'utf8', function (erreur, donnees) {
-		   if (erreur)
-			  throw erreur; // Vous pouvez gérer les erreurs avant de parser le JSON
-		   var filiales1 = JSON.parse(donnees);
-		   
-		   setTimeout(function() {  
-			  connection((db) => {
+   var p = Promise.resolve();
+	p.then( function() {
+          return csvToJson.fieldDelimiter('|').generateJsonFileFromCsv(fileInputName,fileOutputName);
+	}).then( function() {
+	      fs.readFile(fileOutputName, 'utf8', function (erreur, donnees) {
+		 if (erreur)
+		    throw erreur; // Vous pouvez gérer les erreurs avant de parser le JSON
+		 var filiales1 = JSON.parse(donnees);
+		 
+		    connection((db) => {
 				  db.collection(structure).remove({}, function(err, mapping) {
 					  cpt = 0;
 					  filiales1.forEach((objf1) => {
@@ -2093,12 +2093,16 @@ router.post('/csv', cors(), (req, res, next) => {
 					   }); 
 				  });
 			  }); 
-		   }, 10000);   
-	   }); 
+		 
+		 
+		res.json(donnees);  
+	      }); 
+	});
 	
   };
-  res.json("file inserted"); 
+  //res.json("file inserted"); 
 });
+
  
 /*suppression des mapping sfa et attribut*/
 router.post('/mappingdelete', cors(), (req, res) => {
@@ -2247,7 +2251,26 @@ router.post('/upload', function(req, res) {
              res.json({error_code:0,err_desc:null});
         });
     });
-     
+     /*service indicateur*/
+
+router.get('/indicateur/:structure', (req, res) => {
+	var structure = req.params.structure;
+	db.collection("mappingsfa").count({"structure" : structure}, function(err, mappingsfa) {
+		db.collection(structure).distinct("ProductID", {}, function(err, productf) {
+			db.collection("mappingtag").count({"structure" : structure}, function(err, mappingtag) {
+				db.collection(structure).count({}, function(err, producttag) {
+				var tab = [];
+					tab.push(mappingsfa);
+					tab.push(productf.length);
+					tab.push(mappingtag);
+					tab.push(producttag);					
+					console.log(tab);
+					res.json(tab);
+				});
+			});
+		});
+	});
+});
 
   
 

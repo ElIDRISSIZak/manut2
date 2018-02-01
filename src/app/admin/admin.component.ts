@@ -22,7 +22,7 @@ export class AdminComponent {
   structure:any = null;
   username:any= null;
   password:any= null;
-	arrayFiliale : string [] = [ 'filiale1' , 'Rapide Racking', 'Key' , 'Pichon' , 'Witre' , 'Casal Sport' , 'Ikaros', 'manuco'];
+	arrayFiliale : string [] = [ 'filiale1' , 'rapideracking', 'key' , 'pichon' , 'witre' , 'casalsport' , 'ikaros', 'manuco'];
   constructor(private _http: Http ,private _adminService: AdminService , private router: Router , private _location: Location ) {
 
 	this.currentUser = JSON.parse(localStorage.getItem("currentUser"));
@@ -70,7 +70,7 @@ export class AdminComponent {
 					  .subscribe( data => console.log("=>  insertion UNITS =>") );
 					  
 			alert("Données MANUTAN Bien Chargés!");
-			window.location.reload();	
+				
 		}else
 			alert("Veuillez charger les deux fichiers MANUTAN GMC et SFA ");
 	}else {
@@ -89,8 +89,9 @@ export class AdminComponent {
 		        this._http.post('/api/csv', JSON.stringify(model), {headers:headers})
 			.subscribe(data => {
               		 this.data = data;
- 				console.log("=> ",this.data._body);
-            			});
+ 				//console.log("=> ",this.data._body);
+				window.location.reload();            			
+			});
 
 				alert("Fichier bien chargé");
 			}else if(item.isSuccess == false){
@@ -160,28 +161,57 @@ export class AdminComponent {
 	
 		}
 		addUser(){
-			console.log("ADDING USER");
-			if(this.username == null || this.structure == null || this.password == null){
+			if (this.currentUser.structure == "manutan") {
+				console.log("ADDING USER");
+				if(this.username == null || this.structure == null || this.password == null){
 				alert("champ obligatoire");
-			}else{
+				}else{
 				var newUser = {
 				structure : this.structure,
 				username : this.username,
 				admin : true,
 				password : this.password  
 				}
-			console.log("=>", newUser);
-			var headers = new Headers();
-			headers.append('content-type','application/json');
-		    	this._http.post('api/user', JSON.stringify(newUser), {headers:headers})
+				console.log("=>", newUser);
+				var headers = new Headers();
+				headers.append('content-type','application/json');
+		    		this._http.post('api/user', JSON.stringify(newUser), {headers:headers})
 				  .map(res => res.json())
 				  .subscribe(user => {
 					this.user = user,
-					this.userss.push(this.user)
+					this.userss.push(this.user),
+					alert("Utilisateur bien ajouté")
 					
 				});
 				
-			alert("Utilisateur bien ajouté");
+				
+				}
+			}else{
+				console.log("ADDING USER");
+				if(this.username == null || this.password == null){
+					alert("champ obligatoire");
+				}else{
+					var newUser2 = {
+					structure : this.currentUser.structure,
+					username : this.username,
+					admin : true,
+					password : this.password  
+					}
+				console.log("=>", newUser2);
+				var headers = new Headers();
+				headers.append('content-type','application/json');
+		    		this._http.post('api/user', JSON.stringify(newUser2), {headers:headers})
+				  .map(res => res.json())
+				  .subscribe(user => {
+					this.user = user,
+					this.userss.push(this.user),
+					alert("Utilisateur bien ajouté")
+					
+				});
+				
+				
+				}
+
 			}
 		}
 		 
