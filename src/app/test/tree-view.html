@@ -695,7 +695,11 @@
                                                                         <img src="/assets/icons/mig.png" style=" width:14px; height:14px;"/>
                                                                         <span (click)="toggle(pr5)" *ngIf = "pr5.Name;else other_name">
                                                                             <strong>{{pr5.Name["0"] }}</strong>
-                                                                        </span> 
+										
+                                                                        </span>
+									<span *ngIf = "pr5.Values">
+										<img src="/assets/icons/redirection.png" style=" width:14px; height:14px;" (click)="redirection(pr5)" /> 
+									</span>
 									<ng-template #other_name>
 									<span>
                                                                             <strong>----</strong>
@@ -812,8 +816,11 @@
                                                                         <img src="/assets/icons/mig.png" style=" width:14px; height:14px;"/>
                                                                         <span (click)="toggle(pr4)" *ngIf = "pr4.Name;else other_name">
                                                                             <strong>{{pr4.Name["0"] }}</strong>
-                                                                        </span> 
 									
+                                                                        </span> 
+									<span *ngIf = "pr4.Values">
+										<img src="/assets/icons/redirection.png" style=" width:14px; height:14px;" (click)="redirection(pr4)" /> 
+									</span>
 									<!--<div *ngIf="cl4.expanded">
 										<span *ngIf="cl4.product">
 										{{cl4.product.Name["0"]}}
@@ -924,6 +931,9 @@
                                                                         <span (click)="toggle(pr3)" *ngIf = "pr3.Name;else other_name">
                                                                             <strong>{{pr3.Name["0"] }}</strong>
                                                                         </span> 
+									<span *ngIf = "pr3.Values">
+										<img src="/assets/icons/redirection.png" style=" width:14px; height:14px;" (click)="redirection(pr3)" /> 
+									</span>
 									<ng-template #other_name>
 									
                                                     			</ng-template>

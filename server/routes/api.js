@@ -290,7 +290,7 @@ router.post('/insertion', cors(), (req, res, next) => {
 	var filename = model.filename;
  	
 
- if( getFileExtension5(filename) == 'xml' && filename.startsWith("ManutanGMC")) {	
+ if( getFileExtension5(filename) == 'xml' && filename.startsWith("manutanGMC")) {	
 	 
 	var fs = require('fs');
 	fs.readFile('uploads/' + filename, (err, data) => {
@@ -979,7 +979,7 @@ router.post('/insertion4', cors(), (req, res, next) => {
 	var filename = model.filename;
     var collection;
     
-    if( getFileExtension3(filename) == 'xml' && filename.startsWith("manutanSFA")) {    
+    if( getFileExtension2(filename) == 'xml' && filename.startsWith("manutanSFA")) {    
     
         connection((db) => {
             collection = db.collection('attribute');
@@ -1029,7 +1029,7 @@ router.post('/insertion5', cors(), (req, res, next) => {
 	var filename = model.filename;
     var collection;
     
-    if( getFileExtension3(filename) == 'xml' && filename.startsWith("manutanSFA")) {
+    if( getFileExtension4(filename) == 'xml' && filename.startsWith("manutanSFA")) {
         connection((db) => {
             collection = db.collection('unit');
              ////console.log(collection);
@@ -2659,8 +2659,7 @@ router.post('/csv', cors(), (req, res, next) => {
 			 
 	 var fileInputName = 'uploads/' + filename; 
 	 var fileOutputName = 'uploads/output.json';
-	 
-	 
+	var filiale;
 	
 	
 	console.log("terminer");
@@ -2668,28 +2667,27 @@ router.post('/csv', cors(), (req, res, next) => {
 
    var p = Promise.resolve();
 	p.then( function() {
-          return csvToJson.fieldDelimiter('|').generateJsonFileFromCsv(fileInputName,fileOutputName);
+	return fs.readFile(fileOutputName, 'utf8', (err, data) => {
+	    if (err) throw err;
+		filiale = JSON.parse(data)
+	      
+		});
 	}).then( function() {
-	      fs.readFile(fileOutputName, 'utf8', function (erreur, donnees) {
-		 if (erreur)
-		    throw erreur; // Vous pouvez gérer les erreurs avant de parser le JSON
-		 var filiales1 = JSON.parse(donnees);
-		 
 		    connection((db) => {
 				  db.collection(structure).remove({}, function(err, mapping) {
 					  cpt = 0;
-					  filiales1.forEach((objf1) => {
+					  filiale.forEach((objf1) => {
 						  objf1.sorter = cpt;
 					  
 						  db.collection(structure).insert(objf1, {safe: true});
 						  cpt++;
   
 					   }); 
-				  });
+				  //});
 			  }); 
 		 
 		 
-		res.json(donnees);  
+		//res.json(donnees);  
 	      }); 
 	});
 	

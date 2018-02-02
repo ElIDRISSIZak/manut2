@@ -740,4 +740,15 @@ deleteMapping2(product:any){
 	
 	
 }
+redirection(pr : any){
+	console.log("lien=> ",pr);
+	if(pr.Values["0"]){
+		
+		if(pr.Values["0"].Value["0"]){
+		console.log("lien2=> ",pr.Values["0"].Value["0"]._);
+		window.open(pr.Values["0"].Value["0"]._);
+		}
+	}
+	
+}
 }
