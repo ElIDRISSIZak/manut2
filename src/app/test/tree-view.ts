@@ -163,6 +163,7 @@ export class TreeView implements OnInit {
 					for( let att of cl2.product['0'].AttributeLink){
 						att.message = "ID : "+att.attribut.AttributeID+" units "+att.units;
 					}
+					cl2.product['0'].Product.icon = '+';
 					for( let prod of cl2.product['0'].Product){
 						prod.icon = '+';
 						prod.expanded = false;
@@ -191,6 +192,7 @@ setTimeout(()=>{ cl3.product = this._http.get("/api/sfa2/"+cl3.attribut.ID)
 					for( let att of cl3.product['0'].AttributeLink){
 						att.message = "ID : "+att.attribut.AttributeID+" units "+att.units;
 					}
+					cl3.product['0'].Product.icon = '+';
 					for( let prod of cl3.product['0'].Product){
 						prod.icon = '+';
 						prod.expanded = false;
@@ -221,6 +223,7 @@ setTimeout(()=>{ cl3.product = this._http.get("/api/sfa2/"+cl3.attribut.ID)
 					for( let att of cl4.product['0'].AttributeLink){
 						att.message = "ID : "+att.attribut.AttributeID+" units "+att.units;
 					}
+					cl4.product['0'].Product.icon = '+';
 					for( let prod of cl4.product['0'].Product){
 						prod.icon = '+';
 						prod.expanded = false;
@@ -526,7 +529,7 @@ transferDataSuccess($event: any , att: any) {
 	this.idDragged = $event.dragData.id;
 	this.idDropped = att.attribut.ID;
 	//this.selected = "Mapping success : classification : "+ mapp.idf +" attribut: "+ mapp.idsfa;
-	att.mapped = true;
+	//att.mapped = true;
 	var headers = new Headers();
     	headers.append('content-type','application/json');
 
@@ -552,16 +555,38 @@ getSelectedNode(id:any, name: any){
 	this.creation ="Demande de creation d'une SFA";
 	this.selectedMapping = null;
 	console.log("cc",id,"  ==> ", name);
+	this.getIndicateur();
 } 
-getSelectedNode2(id:any, name: any){
+getSelectedNode2(id:any, idf:any, name: any){
 	this.selected = null;
 	this.selectedId = id;
 	this.selectedName = name;
-	this.subject = this.currentUser.structure+" : Demande de création de TAG pour : "+this.selectedName;
-	this.content = "Bonjour%0A%0ANous souhaitons la création de TAG pour l'attribut:  "+this.selectedName+"("+this.selectedId+").%0A%0AVos commentaires.%0A%0ACordialement.";
-	this.destinataire = "GRP_STEP_ROLLOUT";
-	this.creation ="Demande de creation d'un TAG";
-	this.selectedMapping = null;
+
+	this._http.get('/api/infomapping1/'+idf+"/"+this.currentUser.structure)
+    	.subscribe(data => {
+		if((<any>data).json() !=null){
+			let infosfa = null;
+			infosfa= (<any>data).json();
+ 			console.log("=>SFA  : ",infosfa);
+		   this.content = "Bonjour%0A%0ANous souhaitons la création d'un TAG pour:  "+this.selectedName+"("+this.selectedId+"). dans la SFA "+infosfa.namesfa+"("+infosfa.idsfa+")%0A%0AVos commentaires.%0A%0ACordialement.";
+		 	this.subject = this.currentUser.structure+" : Demande de création de TAG pour : "+this.selectedName;
+			this.destinataire = "GRP_STEP_ROLLOUT";
+			this.creation ="Demande de creation d'un TAG";
+			this.selectedMapping = null;
+			this.selectedMapping2 = null;
+		}else{
+			this.content = "Bonjour%0A%0ANous souhaitons la création d'un TAG pour:  "+this.selectedName+"("+this.selectedId+").%0A%0AVos commentaires.%0A%0ACordialement.";
+		 	this.subject = this.currentUser.structure+" : Demande de création de TAG pour : "+this.selectedName;
+			this.destinataire = "GRP_STEP_ROLLOUT";
+			this.creation = null;
+			this.selectedMapping = null;
+			this.selectedMapping2 = null;
+				
+		}
+                
+            	});
+
+	
 	console.log("cc",id,"  ==> ", name);
 } 
 // Mapping Produit TO SFA
@@ -590,7 +615,7 @@ transferDataSuccess2($event: any , att: any , sfa:any) {
 		.subscribe(data => {
 					   this.data = (<any>data).json();
 					   if(this.data == true){
-						att.mapped = true;
+						//att.mapped = true;
 						$event.dragData.mapped = true;
 						this.getIndicateur();
 						console.log("=> MAPPING TAG DONE");
@@ -615,16 +640,17 @@ transferDataSuccess2($event: any , att: any , sfa:any) {
 	
 
 	this.selected = null;
-	this.selectedId = null;
+	this.selectedId = product.id;
 	this.selectedName = null;
 	//this.selectedMapping =  {_id : null , idf : null , idsfa : null , user : null , structure : null , date : null, statut : null};
-	this._http.get('/api/infomapping1/'+product.id)
+	this._http.get('/api/infomapping1/'+product.id+"/"+this.currentUser.structure)
     	.subscribe(data => {
 			if(data !=null){
                			//this.selectedMapping = (<any>data)._body;
 				this.selectedMapping = (<any>data).json();
+				this.selectedMapping2 = null;
 				this.getIndicateur();	
- 				console.log("=> ",this.selectedMapping);
+ 				console.log("=> ",data);
 			}
                 
             	});
@@ -637,7 +663,7 @@ getInfoMapping2(att:any){
 		model.idtagf = att.id;
 		model.structure = this.currentUser.structure;
 	this.selected = null;
-	this.selectedId = null;
+	this.selectedId = att.id;
 	this.selectedName = null;
 	this.selectedMapping = null;
 	console.log("=> Rentre La", model);
@@ -656,7 +682,7 @@ getInfoMapping2(att:any){
 
 } 
 deleteMapping(product:any){	
-	
+	if(window.confirm('Vous allez supprimer le mapping du Produit '+ product.name+ ' ?')){
 	let model = {idf : null , idtagf : null , username : null};
 		model.idf = product.id;
 		model.idtagf = 1;
@@ -664,25 +690,28 @@ deleteMapping(product:any){
 	console.log("=> delete Mapping",this.currentUser.username);
 	product.mapped =false;
 	this.selectedMapping = null;
-	if(product.techattrs){
-		for( let att of product.techattrs){
+		if(product.techattrs){
+			for( let att of product.techattrs){
 			att.mapped = false;
-			this.getIndicateur();
+			//this.getIndicateur();
 			console.log("=> ALL ATT Non Mappés" );
+			}
 		}
-	}
 	var headers = new Headers();
     	headers.append('content-type','application/json');
 	this._http.post('/api/mappingdelete', JSON.stringify(model), {headers:headers})
     	.subscribe(data => {
 			//if(data !=null){
 
-				//this.selectedMapping2 = (<any>data).json();
+				this.getIndicateur();
 					
  				console.log("=>deleted " );
 			//}
                 
             	});
+	this.getIndicateur();
+	this.getSelectedNode(product.id, product.name);
+	}
 }
 
 getIndicateur() {

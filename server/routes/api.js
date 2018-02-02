@@ -1291,7 +1291,7 @@ router.post('/mappingtag', cors(), (req, res, next) => {
 	var idtagf = model.idtagf;
 	var idtaggmc = model.idtaggmc;
 	var structure;	
-	var inserted = true;
+	var inserted = false;
 	console.log("test  ", userId);
 	db.collection("users").findOne({"username": userId}, function(err, user) {
 		
@@ -1314,7 +1314,7 @@ router.post('/mappingtag', cors(), (req, res, next) => {
 									if( alreadyMap.indexOf(productToMap) == -1) {
 										db.collection('mappingtag').insert({"idf": productToMap, "idtagf":idtagf, "idtaggmc":idtaggmc, "user":userId, "structure": structure, "date": new Date(Date.now()).toISOString(), "statut":"provisoire" });
 											console.log("insertion");
-											
+											inserted = true;
 											
 
 									}					
@@ -1325,15 +1325,16 @@ router.post('/mappingtag', cors(), (req, res, next) => {
 				});
 		}
 	});
-	res.json(inserted)
+	res.json(inserted);
 });
 
 // find idProduit to get all Mapping informations
-router.get('/infomapping1/:idf', (req, res) => {
+router.get('/infomapping1/:idf/:structure', (req, res) => {
 	var idf = req.params.idf;
+	var structure = req.params.structure;
     connection((db) => {
         
-        db.collection('mappingsfa').findOne( { idf: idf }, function(err, mapping) {
+        db.collection('mappingsfa').findOne( { idf: idf , structure: structure }, function(err, mapping) {
         
      
 		if(err){
@@ -1356,7 +1357,7 @@ router.post('/infomappingtag', cors(), (req, res) => {
     
     var model = req.body;
     var idf = model.idf;
-    var attribut = model.id;
+    var attribut = model.idtagf;
     var structure = model.structure;
    connection((db) => {
 
@@ -1372,6 +1373,8 @@ router.post('/infomappingtag', cors(), (req, res) => {
         });
     });
 });
+
+
 
 /// INtegration code Johnny 23 Jan Mardi 2018
 /*==================================================================*/
