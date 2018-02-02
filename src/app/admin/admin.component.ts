@@ -22,6 +22,8 @@ export class AdminComponent {
   structure:any = null;
   username:any= null;
   password:any= null;
+	filegmc:any= null;
+	filesfa:any= null;
 	arrayFiliale : string [] = [ 'filiale1' , 'rapideracking', 'key' , 'pichon' , 'witre' , 'casalsport' , 'ikaros', 'manuco'];
   constructor(private _http: Http ,private _adminService: AdminService , private router: Router , private _location: Location ) {
 
@@ -40,11 +42,13 @@ export class AdminComponent {
 		for( let item of this.uploader.queue ){
 			if((item.file.name.includes("manutanGMC") && item.file.type == "text/xml" ) && item.isSuccess == true){
 		        console.log("GOOOD"); 
+			this.filegmc = item.file.name;
 			number++;
 			
 			}
 			else if((item.file.name.includes("manutanSFA") && item.file.type == "text/xml" ) && item.isSuccess == true){
 		        console.log("GOOOD"); 
+			this.filesfa = item.file.name;
 			number++;
 			
 			}
@@ -57,17 +61,31 @@ export class AdminComponent {
 			console.log("=>", this.result);
 		}
 		if(number == 2){
-			confirm("Integration données MANUTAN GMC et SFA ");
-			this._http.get("/api/insertion")
-      				.map(result => this.result = result.json().data)
-				.subscribe(res => this.result = res);
-			this._http.get("/api/insertionsfa")
+			let model = { "filename" : null};
+			let model2 = { "filename" : null};
+			var headers = new Headers();
+	    		headers.append('content-type','application/json');
+			
+			model.filename = this.filegmc;
+			model2.filename = this.filesfa;
+		        this._http.post('/api/insertion', JSON.stringify(model), {headers:headers})
+			.subscribe(data => {
+              		 this.data = data;
+ 				//console.log("=> ",this.data._body);
+				//window.location.reload();            			
+			});
+			this._http.post('/api/insertionsfa', JSON.stringify(model2), {headers:headers})
       				.map(sfa => this.sfa = sfa.json().data)
 				.subscribe(sfa => this.sfa = sfa );	
-				this._http.get("/api/insertion4")
-		  			.subscribe( data => console.log("=>  insertion Attribut =>") );	
-					  this._http.get("/api/insertion5")
-					  .subscribe( data => console.log("=>  insertion UNITS =>") );
+			this._http.post('/api/insertion4', JSON.stringify(model2), {headers:headers})
+		  		.subscribe( data => console.log("=>  insertion Attribut =>") );	
+			this._http.post('/api/insertion5', JSON.stringify(model2), {headers:headers})
+				.subscribe( data => console.log("=>  insertion UNITS =>") );
+
+			setTimeout(()=>{ this.data = "" }, 10000);
+			window.location.reload();
+			
+			
 					  
 			alert("Données MANUTAN Bien Chargés!");
 				

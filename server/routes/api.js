@@ -245,7 +245,7 @@ router.get('/test3', (req, res) => {
       });
 
     });
-      // Get xml file and display JSON format 
+ /*     // Get xml file and display JSON format 
       // Insert JSON format in DataBase
 router.get('/insertion', (req, res) => {
     var fs = require('fs');
@@ -277,7 +277,51 @@ router.get('/insertion', (req, res) => {
           });
         });
       });
-    });
+    });*/
+    // Get xml file and display JSON format 
+      // Insert JSON format in DataBase
+function getFileExtension5(filename) {
+	return filename.slice((filename.lastIndexOf(".xml") - 1 >>> 0) + 2);
+}	  
+	  
+router.post('/insertion', cors(), (req, res, next) => {
+
+    var model = req.body;	
+	var filename = model.filename;
+ 	
+
+ if( getFileExtension5(filename) == 'xml' && filename.startsWith("ManutanGMC")) {	
+	 
+	var fs = require('fs');
+	fs.readFile('uploads/' + filename, (err, data) => {
+	    if (err) throw err;
+	    // var json = JSON.parse(data);
+	
+		// suppression des données dans la collection Classifications
+	        connection((db) => {
+	           db.collection('classifications').deleteMany({}); 
+	        });
+	
+	    var parser = new xml2js.Parser({ attrkey: 'attribut' });
+	    parser.parseString(data, function (err, result) {
+	        // res.json(result);
+	        //console.log("=>",result, "<=");
+	
+	        var value = result['STEP-ProductInformation']['Classifications'];
+	        //console.log(value);
+		    connection((db) => {
+			    db.collection('classifications').insert(value,{safe:true}, function(err, doc) {
+			        //console.log(doc);
+				    if(err) throw err;
+				        res.json("file inserted ");
+				    });	        
+			    });			
+		    });
+	  	});
+	};
+});
+
+
 
 //insertion after upload
 router.post('/insertion2', (req, res, next) => {
@@ -821,7 +865,56 @@ router.get('/xslstest', (req, res) => {
 /*optimisation pour l'insertion sfa qui appelle 2 fonction d'insertion unit et attribute et traitement des données unit + attribute*/
 
 
+//method tester et approuver et fonctionne
 // insertion Fichier Manutan SFA
+// Insert JSON format is database from SFA
+function getFileExtension1(filename) {
+	return filename.slice((filename.lastIndexOf(".xml") - 1 >>> 0) + 2);
+}
+ 
+router.post('/insertionsfa', cors(), (req, res, next) => {
+    
+    var model = req.body;
+	var filename = model.filename;
+    var collection;
+    
+    if( getFileExtension1(filename) == 'xml' && filename.startsWith("manutanSFA")) {
+       
+        connection((db) => {
+            collection = db.collection('productsmanutan');
+             ////console.log(collection);
+        });
+        ////console.log(collection);
+       
+        var fs = require('fs');
+        fs.readFile('uploads/'+ filename, (err, data) => {
+            if (err) throw err;
+            // var json = JSON.parse(data);
+            var parser = new xml2js.Parser({ attrkey: 'attribut' });
+            parser.parseString(data, function (err, result) {
+                // res.json(result);
+                //console.log("=>",result, "<="); 
+                var last = 0;
+                var products = result['STEP-ProductInformation']['Products'];
+                // suppression des données dans la collection productsmanutan
+                connection((db) => {
+                   db.collection('productsmanutan').deleteMany({}); 
+                });
+                //insertion des product avec item product par product
+                products.forEach((item) => {
+                    
+                    connection((db) => {
+                        db.collection('productsmanutan').insert(item['Product'], {safe: true});
+                    });
+                });                                    
+            if(err) throw err;                    
+            });
+            res.json("file inserted ");
+        });
+    };  
+});
+
+/* insertion Fichier Manutan SFA
     // Insert JSON format is database from SFA
     router.get('/insertionsfa', (req, res) => {
         var collection;
@@ -858,7 +951,7 @@ router.get('/xslstest', (req, res) => {
         });
             res.json("file inserted ");
       });
-});
+});*/
 
 // GET Sfa Product By ID Classification
 // request ID + url
@@ -873,15 +966,112 @@ router.get('/sfa/:idclassif', (req, res) => {
 });
 
 /*==================================================================*/
+/*insertion fonction*/
 
 // Insert JSON format is database from SFA Attribute
-    router.get('/insertion4', (req, res) => {
+function getFileExtension2(filename) {
+	return filename.slice((filename.lastIndexOf(".xml") - 1 >>> 0) + 2);
+}
+
+router.post('/insertion4', cors(), (req, res, next) => {
+    
+    var model = req.body;
+	var filename = model.filename;
+    var collection;
+    
+    if( getFileExtension3(filename) == 'xml' && filename.startsWith("manutanSFA")) {    
+    
+        connection((db) => {
+            collection = db.collection('attribute');
+             ////console.log(collection);
+        });
+        ////console.log(collection);
+        
+        var fs = require('fs');
+        fs.readFile('uploads/'+ filename, (err, data) => {
+            if (err) throw err;
+            // var json = JSON.parse(data);
+            var parser = new xml2js.Parser({ attrkey: 'attribut' });
+            parser.parseString(data, function (err, result) {
+                // res.json(result);
+                //console.log("=>",result, "<="); 
+                var last1 = 0;
+                var attribute = result['STEP-ProductInformation']['AttributeList'];
+                //console.log(result);
+                // suppression des données dans la collection productsmanutan
+                connection((db) => {
+                   db.collection('attribute').deleteMany({}); 
+                });
+                //insertion des product avec item product par product
+                attribute.forEach((obj) => {
+                    
+                    connection((db) => {
+                        db.collection('attribute').insert(obj['Attribute'], {safe: true});
+                    });
+                });                    
+            if(err) throw err;           
+            });
+                res.json("file inserted ");
+         });
+    };    
+});
+
+/*insertion 5*/
+
+function getFileExtension4(filename) {
+	return filename.slice((filename.lastIndexOf(".xml") - 1 >>> 0) + 2);
+}
+
+// Insert JSON format is database from SFA Unit
+router.post('/insertion5', cors(), (req, res, next) => {
+    
+    var model = req.body;
+	var filename = model.filename;
+    var collection;
+    
+    if( getFileExtension3(filename) == 'xml' && filename.startsWith("manutanSFA")) {
+        connection((db) => {
+            collection = db.collection('unit');
+             ////console.log(collection);
+        });
+        ////console.log(collection);
+        
+        var fs = require('fs');
+        fs.readFile('uploads/'+ filename, (err, data) => {
+            if (err) throw err;
+            // var json = JSON.parse(data);
+            var parser = new xml2js.Parser({ attrkey: 'attribut' });
+            parser.parseString(data, function (err, result) {
+                // res.json(result);
+                //console.log("=>",result, "<="); 
+                var last1 = 0;
+                var unit = result['STEP-ProductInformation']['UnitList'];
+                //console.log(result);
+                // suppression des données dans la collection productsmanutan
+                connection((db) => {
+                   db.collection('unit').deleteMany({}); 
+                });
+                //insertion des product avec item product par product
+                unit.forEach((obj1) => {
+                    
+                    connection((db) => {
+                        db.collection('unit').insert(obj1['Unit'], {safe: true});
+                    });
+                });                    
+            if(err) throw err;           
+            });
+            //res.json("file inserted ");
+        });
+    };
+});
+// Insert JSON format is database from SFA Attribute
+  /*  router.get('/insertion4', (req, res) => {
         var collection;
     connection((db) => {
         collection = db.collection('attribute');
-         ////console.log(collection);
+         //console.log(collection);
     });
-    ////console.log(collection);
+    //console.log(collection);
    
     var fs = require('fs');
     fs.readFile('uploads/manutanSFA.xml', (err, data) => {
@@ -909,11 +1099,11 @@ router.get('/sfa/:idclassif', (req, res) => {
         });
             res.json("file inserted ");
       });
-    });
+    });*/
 
 
 // Insert JSON format is database from SFA Unit
-    router.get('/insertion5', (req, res) => {
+ /*   router.get('/insertion5', (req, res) => {
         var collection;
     connection((db) => {
         collection = db.collection('unit');
@@ -947,7 +1137,7 @@ router.get('/sfa/:idclassif', (req, res) => {
         });
             //res.json("file inserted ");
       });
-});
+});*/
 
 
 //Login
@@ -1003,6 +1193,8 @@ router.get('/sfa2/:gmc', (req, res) => {
                 
                 // request ID + url attribute
                 db.collection("attribute").findOne({"attribut.ID" : attributLink.attribut.AttributeID}, function(err, attributes) {
+		if(attributes != null){
+
                 attributLink.name = attributes.Name;
                 attributLink.units= [];
                 //console.log(attributLink.name);                         
@@ -1029,6 +1221,7 @@ router.get('/sfa2/:gmc', (req, res) => {
                                 });
                             }
                         };
+			}
                     });
                     
                 });
@@ -1290,6 +1483,8 @@ router.post('/mappingtag', cors(), (req, res, next) => {
 	var userId = model.user;
 	var idtagf = model.idtagf;
 	var idtaggmc = model.idtaggmc;
+	var nametaggmc = model.nametaggmc;
+	
 	var structure;	
 	var inserted = true;
 	console.log("test  ", userId);
@@ -1313,7 +1508,7 @@ router.post('/mappingtag', cors(), (req, res, next) => {
 							db.collection("mappingtag").distinct( "idf", {"structure" : structure, "idtagf" : idtagf, "idf" : {$in : productsToMap}}, function(err, alreadyMap) {
 								productsToMap.forEach((productToMap) => {
 									if( alreadyMap.indexOf(productToMap) == -1) {
-										db.collection('mappingtag').insert({"idf": productToMap, "idtagf":idtagf, "idtaggmc":idtaggmc, "user":userId, "structure": structure, "date": new Date(Date.now()).toISOString(), "statut":"provisoire" });
+										db.collection('mappingtag').insert({"idf": productToMap, "idtagf":idtagf, "idtaggmc":idtaggmc, "nametaggmc":nametaggmc,"user":userId, "structure": structure, "date": new Date(Date.now()).toISOString(), "statut":"provisoire" });
 											console.log("insertion");
 											inserted = true;
 											res.json(inserted);
@@ -1382,7 +1577,7 @@ router.post('/infomappingtag', cors(), (req, res) => {
 /*==================================================================*/
 /*====================Insertion mapping du structure filiale========*/
 
-router.get('/filiale/:structure', (req, res) => {
+/*router.get('/filiale/:structure', (req, res) => {
     
 	var structure = req.params.structure;	
 	var root = [];
@@ -1392,6 +1587,391 @@ router.get('/filiale/:structure', (req, res) => {
 		mappingtag.forEach( function(currentmapping){
 			mappingkeys.push(currentmapping.idf + currentmapping.idtagf);
 		});
+		
+		var id1 = 0;
+		var id2 = 0;
+		var id3 = 0;
+		var id4 = 0;
+		var id5 = 0;
+		var classification1 = {};
+		var classification2 = {};
+		var classification3 = {};
+		var idmd9 = 0;
+		db.collection(structure).find({}).sort({ "sorter": 1}, function(err, result) {
+			//console.log("Taille result : ", result.length);	
+		result.forEach(function(item){
+      			////console.log("1");
+			//console.log(item["Classificationlevel1ID"], "** =================!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!==================**", id1);
+			if(item["Classificationlevel1ID"] != id1){
+				
+				classification1= {};
+				classification2= {};
+				classification2.models = [];
+				classification3= {};
+				classification4= {};
+				classification1.id = item["Classificationlevel1ID"];
+				classification1.name = item["Classificationlevel1NAME"];
+				id1 = classification1.id;
+				//classification1.push(id1);	
+				//classification1.push(name);
+				classification1.classification = [];
+				//console.log("** =================!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!==================**");
+				if(item["Classificationlevel2ID"] != id2){
+					////console.log("** id2 CHANGE**");
+					classification2.id = item["Classificationlevel2ID"];
+					classification2.name = item["Classificationlevel2NAME"];
+					id2 = item["Classificationlevel2ID"];
+					classification2.classification = [];
+					classification2.models = [];
+
+				     
+
+					//classification2.push(id2);
+					//classification2.push(item["Classification level 2 NAME"]);
+												
+					classification1.classification.push(classification2);
+					//console.log("** ==================================================================**");
+					root.push(classification1);
+					classification2= {};
+					//classification1= {};
+					//root.push(classification1);
+				}//else
+					//console.log("** ===> id1 id2 ==**");
+					
+				
+			}else{
+				if(item["Classificationlevel2ID"] != id2){
+					classification2.id = item["Classificationlevel2ID"];
+					classification2.name = item["Classificationlevel2NAME"];
+					id2 = classification2.id;
+					classification2.classification = [];
+					classification2.models = [];
+					
+					
+					//classification2.push(id2);
+					//classification2.push(item["Classification level 2 NAME"]);
+
+					classification1.classification.push(classification2);
+					//root.push(classification1);
+					classification2= {};
+				}
+			}  
+		});
+		//MODELS FOR LEVEL 2
+		var idmd10 = 0;
+		var idp = 0;
+		idattr1 = 0;
+		idattr2 = 0;
+		idattr3 = 0;
+//console.log("Taille result 2: ", result.length);	
+		result.forEach(function(item){
+			////console.log("** TEST**");
+			
+			root.forEach(function(item10){
+			var cll = item10.classification;	
+			//classification3.models = [];
+				model= {};
+				model.products = [];
+			cll.forEach(function(item11){
+			if((item["Classificationlevel2ID"] == item11.id)&&(item["ModelID"] != "-") && (idmd10 != item["ModelID"]) && ("-" == item["Classificationlevel3ID"])){//////////////////////
+								//console.log("for cl2 =>  **",idmd2 );
+								model.id = item["ModelID"];
+								model.name = item["ModelNAME"];
+								idmd10 = item["ModelID"];
+								//classification4.models.push(model);
+								item11.models.push(model);
+								//console.log("Niv 2=>",item11.id);
+				}
+			
+			var prods = item11.models;
+			product= {};
+			product.techattrs = [];
+					prods.forEach(function(it){
+						//console.log("PROD N1 => ", idp );
+						if((item["ModelID"] == it.id)&&(item["ProductID"] != "-") 
+							&& (idp != item["ProductID"])){
+								//console.log("Product  **",idp );
+								product.id = item["ProductID"];
+								product.name = item["ProductNAME"];
+								product.shortdesc = item["short description"];
+								product.longdesc = item["long description"];
+								idp = item["Product ID"];
+								if(mapping.indexOf(product.id) > -1){
+											//console.log(" find mapped ");
+											product.mapped = "true";
+											//console.log(product.mapped);		
+								}
+								//classification4.models.push(model);
+								it.products.push(product);
+								//console.log("=>",it.id);
+							}
+							//Technical attribut ID
+					var techattrs = it.products;
+					techattr = {};
+					
+					techattrs.forEach(function(tech){
+						//console.log("ATTR N1 => ", idattr1 );
+						if((item["ProductID"] == tech.id)&&(item["Technical attribut ID"] != "-") 
+							&& (idattr1 != item["TechnicalattributID"])){
+								//console.log("ATTRIBUT   **",idattr1 );
+								techattr.id = item["TechnicalattributID"];
+								techattr.name = item["TechnicalattributNAME"];
+								techattr.value = item["TechnicalattributVALUE"];
+								techattr.unit = item["TechnicalattributUNIT"];
+								idattr1 = item["TechnicalattributID"];
+								if(mappingkeys.indexOf(product.id + techattr.id) > -1){
+									//console.log(" find mapped ");
+									techattr.mapped = "true";
+									//console.log(product.mapped);		
+								}
+								//classification4.models.push(model);
+								tech.techattrs.push(techattr);
+								//console.log("ATT saved=>",tech.id);
+						}
+					});
+
+					//FIN iteration
+
+			});
+
+			});
+			});
+		});
+		var idcsv = 0;
+		var idmd = 0;
+		var idmd2 = 0;
+		var idmd3 = 0;
+		var idprod = 0;
+		var idprod1 = 0;
+		var idprod2 = 0;
+//console.log("Taille result 3: ", result.length);	
+		result.forEach(function(item){
+			////console.log("** TEST**");
+			idcsv++;
+			root.forEach(function(item2){
+				var iditem2 = 0;
+				classification3= {};
+				classification3.classification = [];
+				classification3.models = [];
+				model= {};
+				model.products = [];
+				var cl = item2.classification;
+				cl.forEach(function(item3){
+					if((iditem2 ==0 ) && (idcsv == 1)){
+						//console.log("** ITEM  **",item3.id);
+						iditem2++;
+					}
+					
+					if((item["Classificationlevel2ID"] == item3.id) && (id3 != item["Classificationlevel3ID"]) && ("-" != 	item["Classificationlevel3ID"])){
+						//console.log("** INSERT HERE  **",item3.id);
+						classification3.id = item["Classificationlevel3ID"];
+						classification3.name = item["Classificationlevel3NAME"];
+						id3 = item["Classificationlevel3ID"];
+						item3.classification.push(classification3);
+					}
+					
+
+//MODELS
+					model2= {};
+					model2.products = [];
+					var md2 = item3.classification;
+					
+					md2.forEach(function(item8){
+						
+						if((item["Classificationlevel3ID"] == item8.id)&&(item["ModelID"] != "-") && (idmd2 != item["ModelID"])){
+								//console.log("M **",idmd2 );
+								model2.id = item["ModelID"];
+								model2.name = item["ModelNAME"];
+								idmd2 = item["ModelID"];
+								//classification4.models.push(model);
+								item8.models.push(model2);
+								//console.log("Niv 3=>",item8.id);
+							}
+					
+						var prods2 = item8.models;
+						product2= {};
+						product2.techattrs = [];
+						prods2.forEach(function(item9){
+						//console.log("TEST" );
+						if((item["ModelID"] == item9.id)&&(item["ProductID"] != "-") 
+							&& (idprod2 != item["ProductID"])){
+								//console.log("Product  **",idprod2 );
+								product2.id = item["ProductID"];
+								product2.name = item["ProductNAME"];
+								product2.shortdesc = item["shortdescription"];
+								product2.longdesc = item["longdescription"];
+								idprod2 = item["ProductID"];
+								if(mapping.indexOf(product2.id) > -1){
+											//console.log(" find mapped ");
+											product2.mapped = "true";
+											//console.log(product2.mapped);		
+								}
+								//classification4.models.push(model);
+								item9.products.push(product2);
+								//console.log("=>",item9.id);
+							}
+				//Technical attribut ID
+					var techattrs = item9.products;
+					techattr = {};
+					
+					techattrs.forEach(function(tech){
+						//console.log("ATTR LEV3 => ", idattr2 );
+						if((item["ProductID"] == tech.id)&&(item["TechnicalattributID"] != "-") 
+							&& (idattr2 != item["TechnicalattributID"])){
+								//console.log("ATTRIBUT   **",idattr2 );
+								techattr.id = item["TechnicalattributID"];
+								techattr.name = item["TechnicalattributNAME"];
+								techattr.value = item["TechnicalattributVALUE"];
+								techattr.unit = item["TechnicalattributUNIT"];
+								idattr2 = item["TechnicalattributID"];
+								if(mappingkeys.indexOf(product.id + techattr.id) > -1){
+									//console.log(" find mapped ");
+									techattr.mapped = "true";
+									//console.log(product.mapped);		
+								}
+								//classification4.models.push(model);
+								tech.techattrs.push(techattr);
+								//console.log("ATT saved=>",tech.id);
+						}
+					});
+
+					//FIN iteration
+
+					});
+
+
+					});
+
+//MODELS			
+					classification4= {};
+					classification4.models = [];
+					var cl2 = item3.classification;
+					
+					cl2.forEach(function(item4){
+						
+						
+						
+						if((item["Classificationlevel3ID"] == item4.id) && ("-" != item["Classificationlevel4ID"])){
+													
+							////console.log("** ID4 **",item["Classification level 4 ID"]);
+							classification4.id = item["Classificationlevel4ID"];
+							classification4.name = item["Classificationlevel4NAME"];
+							
+							
+							if(item4.classification && (id4 != item["Classificationlevel4ID"])){
+								item4.classification.push(classification4);
+								////console.log("** ID4 PUSH **", id4);	
+							}	
+							
+							id4 = item["Classificationlevel4ID"];
+						}
+					model= {};
+					model.products = [];
+					var md1 = item4.classification;
+					
+					md1.forEach(function(item6){
+						
+						if((item["Classificationlevel4ID"] == item6.id)&&(item["ModelID"] != "-") && (idmd != item["ModelID"])){
+								//console.log("M **",idmd );
+								model.id = item["ModelID"];
+								model.name = item["ModelNAME"];
+								idmd = item["ModelID"];
+								//classification4.models.push(model);
+								item6.models.push(model);
+								//console.log("66=>",item6.id);
+							}
+					
+						var prods = item6.models;
+						product= {};
+						product.techattrs = [];
+					prods.forEach(function(item7){
+						//console.log("TEST" );
+						if((item["ModelID"] == item7.id)&&(item["ProductID"] != "-") 
+							&& (idprod != item["ProductID"])){
+								//console.log("Product  **",idprod );
+								product.id = item["ProductID"];
+								product.name = item["ProductNAME"];
+								product.shortdesc = item["shortdescription"];
+								product.longdesc = item["longdescription"];
+								idprod = item["ProductID"];
+								if(mapping.indexOf(product.id) > -1){
+											//console.log(" find mapped ");
+											product.mapped = "true";
+											//console.log(product.mapped);		
+								}
+								//classification4.models.push(model);
+								item7.products.push(product);
+								//console.log("=>",item7.id);
+								
+							}
+						//Technical attribut ID
+					var techattrs = item7.products;
+					techattr = {};
+					
+					techattrs.forEach(function(tech){
+						//console.log("ATTR LEV3 => ", idattr3 );
+						if((item["ProductID"] == tech.id)&&(item["TechnicalattributID"] != "-") 
+							&& (idattr3 != item["TechnicalattributID"])){
+								//console.log("ATTRIBUT LEV 4   **",idattr3 );
+								techattr.id = item["TechnicalattributID"];
+								techattr.name = item["TechnicalattributNAME"];
+								techattr.value = item["TechnicalattributVALUE"];
+								techattr.unit = item["TechnicalattributUNIT"];
+								idattr3 = item["TechnicalattributID"];
+								if(mappingkeys.indexOf(product.id + techattr.id) > -1){
+									//console.log(" find mapped ");
+									techattr.mapped = "true";
+									//console.log(product.mapped);		
+								}
+								//classification4.models.push(model);
+								tech.techattrs.push(techattr);
+								//console.log("ATT saved=>",tech.id);
+						}
+					});
+
+					});
+					});
+
+					});
+					
+				});
+				
+				
+				
+			});
+						
+		});
+	
+	
+
+		//setTimeout(() => {
+            res.json(root);
+        //},1000); 
+});
+	
+		
+	});
+});
+
+
+});*/
+
+/* filiale */
+
+router.get('/filiale/:structure', (req, res) => {
+    
+	var structure = req.params.structure;	
+	var root = [];
+	db.collection("mappingsfa").distinct("idf", {"structure" : structure}, function(err, mapping) {
+    db.collection("mappingtag").find({"structure" : structure, "idf" : { $in : mapping}}, function(err, mappingtag) {
+		var mappingkeys = [];
+		/*mappingtag.forEach( function(currentmapping){
+			mappingkeys.push(currentmapping.idf + currentmapping.idtagf);
+		});*/
+		for (var a = 0; a < mappingtag.length; a++){
+			mappingkeys.push(mappingtag[a].idf + mappingtag[a].idtagf);
+		}
+		console.log("final", mappingkeys);
 		
 		var id1 = 0;
 		var id2 = 0;
@@ -1537,6 +2117,7 @@ router.get('/filiale/:structure', (req, res) => {
 								//console.log("=>",it.id);
 							}
 							//Technical attribut ID
+							//celui ci ne passe pas le mapped
 					var techattrs = it.products;
 					techattr = {};
 					
@@ -1551,9 +2132,11 @@ router.get('/filiale/:structure', (req, res) => {
 								techattr.unit = item["TechnicalattributUNIT"];
 								idattr1 = item["TechnicalattributID"];
 								if(mappingkeys.indexOf(product.id + techattr.id) > -1){
+									//console.log(mappingkeys);
 									//console.log(" find mapped ");
 									techattr.mapped = "true";
 									//console.log(product.mapped);		
+								}else{
 								}
 								//classification4.models.push(model);
 								tech.techattrs.push(techattr);
@@ -1650,6 +2233,7 @@ router.get('/filiale/:structure', (req, res) => {
 								//console.log("=>",item9.id);
 							}
 				//Technical attribut ID
+				//le niveau de celui la passe bien par mapped
 					var techattrs = item9.products;
 					techattr = {};
 					
@@ -1663,10 +2247,14 @@ router.get('/filiale/:structure', (req, res) => {
 								techattr.value = item["TechnicalattributVALUE"];
 								techattr.unit = item["TechnicalattributUNIT"];
 								idattr2 = item["TechnicalattributID"];
+								
 								if(mappingkeys.indexOf(product.id + techattr.id) > -1){
+									
+									//console.log(mappingkeys);
 									//console.log(" find mapped ");
 									techattr.mapped = "true";
 									//console.log(product.mapped);		
+								}else{
 								}
 								//classification4.models.push(model);
 								tech.techattrs.push(techattr);
@@ -1727,7 +2315,7 @@ router.get('/filiale/:structure', (req, res) => {
 								//classification4.models.push(model);
 								item6.models.push(model);
 								//console.log("66=>",item6.id);
-							}
+						}
 					
 						var prods = item6.models;
 						product= {};
@@ -1743,16 +2331,17 @@ router.get('/filiale/:structure', (req, res) => {
 								product.longdesc = item["longdescription"];
 								idprod = item["ProductID"];
 								if(mapping.indexOf(product.id) > -1){
+									
 											//console.log(" find mapped ");
 											product.mapped = "true";
 											//console.log(product.mapped);		
 								}
 								//classification4.models.push(model);
 								item7.products.push(product);
-								//console.log("=>",item7.id);
-								
+							//console.log("=>",item7.id);								
 							}
 						//Technical attribut ID
+						//celui ci ne passe de mapped
 					var techattrs = item7.products;
 					techattr = {};
 					
@@ -1767,9 +2356,12 @@ router.get('/filiale/:structure', (req, res) => {
 								techattr.unit = item["TechnicalattributUNIT"];
 								idattr3 = item["TechnicalattributID"];
 								if(mappingkeys.indexOf(product.id + techattr.id) > -1){
+									
 									//console.log(" find mapped ");
 									techattr.mapped = "true";
 									//console.log(product.mapped);		
+								}else{
+									
 								}
 								//classification4.models.push(model);
 								tech.techattrs.push(techattr);
@@ -1789,9 +2381,6 @@ router.get('/filiale/:structure', (req, res) => {
 			});
 						
 		});
-	
-	
-
 		//setTimeout(() => {
             res.json(root);
         //},1000); 

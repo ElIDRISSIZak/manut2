@@ -169,6 +169,7 @@ export class TreeView implements OnInit {
 						prod.expanded = false;
                    				prod.checked = false;
                    				prod.showIcon = true;
+						console.log("PRD-",prod);
 					}
 				}
 			}
@@ -538,9 +539,9 @@ transferDataSuccess($event: any , att: any) {
     	this._http.post('/api/mappingsfa', JSON.stringify(mapp), {headers:headers})
 	.subscribe(data => {
 
-		if(data._body !=null){
-               		this.data = data;
- 			console.log("=> ",this.data._body);
+		if((<any>data).json() !=null){
+               		this.data = (<any>data).json();
+ 			console.log("=> ",this.data);
 			this.getIndicateur();
 
 		}
@@ -598,11 +599,12 @@ transferDataSuccess2($event: any , att: any , sfa:any) {
 	if(window.confirm('Vous allez mapper '+ $event.dragData.name+ 'Confirmer le mapping ?')){
        		
         	this.test = true;
-	 	let mapp2 = {idf : null , idtagf : null , idsfa : null , idtaggmc : null, user : null};
+	 	let mapp2 = {idf : null , idtagf : null , idsfa : null , idtaggmc : null, nametaggmc: null, user : null};
 		mapp2.idf = $event.dragData.idf;
 		mapp2.idtagf = $event.dragData.id;
 		mapp2.idsfa = sfa.attribut.ID;
 		mapp2.idtaggmc = att.attribut.AttributeID;
+		mapp2.nametaggmc = att.name;
 		mapp2.user = this.currentUser.username;
 
         	//this.receivedData.push(mapp);
@@ -667,8 +669,8 @@ getInfoMapping2(att:any){
 		model.idtagf = att.id;
 		model.structure = this.currentUser.structure;
 	this.selected = null;
-	this.selectedId = att.id;
-	this.selectedName = null;
+	this.selectedId = null;
+	this.selectedName = att.name;
 	this.selectedMapping = null;
 	console.log("=> Rentre La", model);
 	var headers = new Headers();
