@@ -537,9 +537,13 @@ transferDataSuccess($event: any , att: any) {
 	
     	this._http.post('/api/mappingsfa', JSON.stringify(mapp), {headers:headers})
 	.subscribe(data => {
-               this.data = data;
- 		console.log("=> ",this.data._body);
-		this.getIndicateur();
+
+		if(data._body !=null){
+               		this.data = data;
+ 			console.log("=> ",this.data._body);
+			this.getIndicateur();
+
+		}
                 
             });
 

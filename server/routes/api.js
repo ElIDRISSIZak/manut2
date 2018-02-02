@@ -1291,8 +1291,9 @@ router.post('/mappingtag', cors(), (req, res, next) => {
 	var idtagf = model.idtagf;
 	var idtaggmc = model.idtaggmc;
 	var structure;	
-	var inserted = false;
+	var inserted = true;
 	console.log("test  ", userId);
+	
 	db.collection("users").findOne({"username": userId}, function(err, user) {
 		
 		structure = user.structure;
@@ -1315,7 +1316,7 @@ router.post('/mappingtag', cors(), (req, res, next) => {
 										db.collection('mappingtag').insert({"idf": productToMap, "idtagf":idtagf, "idtaggmc":idtaggmc, "user":userId, "structure": structure, "date": new Date(Date.now()).toISOString(), "statut":"provisoire" });
 											console.log("insertion");
 											inserted = true;
-											
+											res.json(inserted);
 
 									}					
 								});											
@@ -1325,7 +1326,8 @@ router.post('/mappingtag', cors(), (req, res, next) => {
 				});
 		}
 	});
-	res.json(inserted);
+
+	//res.json(inserted);
 });
 
 // find idProduit to get all Mapping informations
