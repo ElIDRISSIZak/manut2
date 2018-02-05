@@ -169,7 +169,7 @@ export class TreeView implements OnInit {
 						prod.expanded = false;
                    				prod.checked = false;
                    				prod.showIcon = true;
-						console.log("PRD-",prod);
+						//console.log("PRD-",prod);
 					}
 				}
 			}
@@ -258,7 +258,7 @@ setTimeout(()=>{ cl3.product = this._http.get("/api/sfa2/"+cl3.attribut.ID)
 	return this.classification;        
     }
     getDataFiliale():void {
-	if ( ((localStorage.getItem('ifAdmin') == "true")) && (( this.arrayFiliale.includes(this.currentUser.structure)) || ( this.currentUser.structure == "manutan"))) {
+	if ( this.arrayFiliale.includes(this.currentUser.structure)) {
         this._http.get('/api/filiale/'+this.currentUser.structure)
         .map(ClassificationFi => <ClassificationFi[]>ClassificationFi.json())        
          .subscribe(ClassificationFi =>{
@@ -287,7 +287,7 @@ setTimeout(()=>{ cl3.product = this._http.get("/api/sfa2/"+cl3.attribut.ID)
        	   console.log("TEST F",cl);
 	   console.log("CL =>",cl.classification);		
            for( let cl2 of cl.classification){
-       	   	console.log("RENTrE",cl2);
+       	   	//console.log("RENTrE",cl2);
                cl2.expanded = false;
                cl2.checked = false;
                cl2.showIcon = true;
@@ -299,7 +299,7 @@ setTimeout(()=>{ cl3.product = this._http.get("/api/sfa2/"+cl3.attribut.ID)
                    				cl22.checked = false;
                    				cl22.showIcon = true;
                   	 			cl22.icon = '+';
-						console.log("=> MIG ", cl22 );
+						//console.log("=> MIG ", cl22 );
 						//Integration d attribut Last level
 						if(cl22.products){
 							for( let prod2 of cl22.products){
@@ -313,7 +313,7 @@ setTimeout(()=>{ cl3.product = this._http.get("/api/sfa2/"+cl3.attribut.ID)
 								prod2.techattrs.showIcon = true;								
 								for( let att of prod2.techattrs){
 									att.idf = prod2.id;
-									console.log("=> ID PRODUIT ", att.idf );
+									//console.log("=> ID PRODUIT ", att.idf );
 								}
 						}
 							}
@@ -333,7 +333,7 @@ setTimeout(()=>{ cl3.product = this._http.get("/api/sfa2/"+cl3.attribut.ID)
                    				cl33.checked = false;
                    				cl33.showIcon = true;
                   	 			cl33.icon = '+';
-						console.log("=> Models ", cl33 );
+						//console.log("=> Models ", cl33 );
 						//Integration d attribut Last level
 						if(cl33.products){
 							for( let prod1 of cl33.products){
@@ -347,7 +347,7 @@ setTimeout(()=>{ cl3.product = this._http.get("/api/sfa2/"+cl3.attribut.ID)
 								prod1.techattrs.showIcon = true;									
 								for( let att of prod1.techattrs){
 									att.idf = prod1.id;
-									console.log("=> ID PRODUIT ", att.idf );
+									//console.log("=> ID PRODUIT ", att.idf );
 								}
 						}
 							}
@@ -381,7 +381,7 @@ setTimeout(()=>{ cl3.product = this._http.get("/api/sfa2/"+cl3.attribut.ID)
 								
 								for( let att of prod.techattrs){
 									att.idf = prod.id;
-									console.log("=> ID PRODUIT ", att.idf );
+									//console.log("=> ID PRODUIT ", att.idf );
 								}
 								
 							}
@@ -429,7 +429,7 @@ transferDataSuccess($event: any , att: any) {
 							
 								   
 			 				$event.dragData.mapped = true;
-							this.getIndicateur();
+							
 
 			//}
 		}
@@ -439,7 +439,7 @@ transferDataSuccess($event: any , att: any) {
 				///////////////////////////////////////////
 				for( let prod of $event.dragData.products){
                    					prod.mapped = true;
-							this.getIndicateur();
+							
 				}
 			}
 		}else if($event.dragData.models){
@@ -448,7 +448,7 @@ transferDataSuccess($event: any , att: any) {
 										if(model.products.length > 0){
 											for( let prod of model.products){
                    									prod.mapped = true;
-											this.getIndicateur();
+											
 											}
 										}	
                    							}
@@ -458,6 +458,7 @@ transferDataSuccess($event: any , att: any) {
 
 
 			}
+
 			if($event.dragData.classification){
 			 
 			
@@ -467,50 +468,56 @@ transferDataSuccess($event: any , att: any) {
 
 					if(cl.classification){
 						if(cl.classification.length > 0){	
-						for( let cl2 of cl.classification){
-							if(cl2.classification){             //MODELS HERE
+							for( let cl2 of cl.classification){
+							            //MODELS HERE
 								if(cl2.classification.length > 0){	
-								for( let cl3 of cl2.classification){
+									for( let cl3 of cl2.classification){
 									
-								if(cl3.models.length > 0){
-									for( let model of cl3.models){
-										if(model.products.length > 0){
-											for( let prod of model.products){
-                   										prod.mapped = true;
-												this.getIndicateur();
-											}
-										}	
-                   							}
-								}	
+									if(cl3.models.length > 0){
+										for( let model of cl3.models){
+											if(model.products.length > 0){
+												for( let prod of model.products){
+                   											prod.mapped = true;
+												
+												}
+											}	
+                   								}
+									}
+									}	
+		
+								}
 
-								}	
-								}
+							
 								else if(cl2.models){
-								if(cl2.models.length > 0){
-									for( let model of cl2.models){
-										if(model.products.length > 0){
-											for( let prod of model.products){
-                   									prod.mapped = true;
-											this.getIndicateur();
-											}
-										}	
-                   							}
+									if(cl2.models.length > 0){
+										for( let model of cl2.models){
+											if(model.products.length > 0){
+												for( let prod of model.products){
+                   											prod.mapped = true;
+											
+												}
+											}	
+                   								}
+									}
+							
 								}
-						}}}		}
-					}if(cl.models){
+							}
+						}
+					}
+					if(cl.models){
 						if(cl.models.length > 0){
 						for( let model of cl.models){
 							if(model.products.length > 0){
 								for( let prod of model.products){
                    							prod.mapped = true;
-									this.getIndicateur();
+									
 								}
 							}	
                    					
 						}
 						}
 					}
-
+			//Bien
 				}
 			
 			}
@@ -542,14 +549,15 @@ transferDataSuccess($event: any , att: any) {
 		if((<any>data).json() !=null){
                		this.data = (<any>data).json();
  			console.log("=> ",this.data);
-			this.getIndicateur();
+			
 
 		}
                 
             });
-
+	//this.getIndicateur();
 	}
     }	
+
 getSelectedNode(id:any, name: any){
 	this.selected = null;
 	this.selectedId = id;
@@ -750,5 +758,122 @@ redirection(pr : any){
 		}
 	}
 	
+}
+deleteMappinglevel(cl:any){
+	if(window.confirm('Vous allez tout les mapping du Noeud '+ cl.name+ ' ?')){
+	let model = {idf : null , idtagf : null , username : null};
+		model.idf = cl.id;
+		model.idtagf = 1;
+		model.username = this.currentUser.username;
+	console.log("=> delete Mapping",this.currentUser.username);
+	this.selectedMapping = null;
+	if(cl.models){
+		if(cl.models.length > 0){
+			for( let model of cl.models){
+				if(model.products.length > 0){
+					for( let prod of model.products){
+                   				prod.mapped = false;
+						if(prod.techattrs){
+							for( let att of prod.techattrs){
+								att.mapped = false;
+								//console.log("=> ALL ATT Non Mappés" );
+							}
+						}
+					}
+				}	
+                  	}
+		}
+	}
+	if((cl.classification)){
+		//console.log("=> click ",cl.name);
+		if(cl.classification.length > 0){
+			for( let cl2 of cl.classification){
+							//console.log("=> lvl2 ",cl2.name);
+								if(cl2.models.length > 0){
+									for( let model of cl2.models){
+										if(model.products.length > 0){
+											for( let prod of model.products){
+                   										prod.mapped = false;
+												if(prod.techattrs){
+													for( let att of prod.techattrs){
+														att.mapped = false;
+														//console.log("=> ALL ATT Non Mappés" );
+													}
+												}
+											}
+										}	
+                   							}
+								}		
+								else if(cl2.classification.length > 0){
+									for( let cl3 of cl2.classification){
+										//console.log("=> lvl3 ",cl3.name);
+										
+										if(cl3.models.length > 0){
+												
+											for( let model of cl3.models){
+											if(model.products.length > 0){
+												for( let prod of model.products){
+                   											prod.mapped = false;	
+													//console.log("=> Mapp here",model.name);
+													if(prod.techattrs){
+																for( let att of prod.techattrs){
+																	att.mapped = false;
+																	//console.log("=> ALL ATT Non Mappés" );
+																}
+													}
+												}
+											}	
+                   									}
+										}else if(cl3.classification.length > 0){
+											for( let cl4 of cl3.classification){
+												//console.log("=> lvl4 ",cl4.name);
+											if(cl4.models.length > 0){
+												for( let model of cl4.models){
+													if(model.products.length > 0){
+														for( let prod of model.products){
+                   													prod.mapped = false;
+															//console.log("=> HERE ");
+															if(prod.techattrs){
+																for( let att of prod.techattrs){
+																	att.mapped = false;
+																	//console.log("=> ALL ATT Non Mappés" );
+																}
+															}
+														}
+													}	
+                   										}
+											}
+											}	
+										
+	
+                   							}
+									}
+								}	
+
+			}	
+		
+		}
+	}
+	
+	var headers = new Headers();
+    	headers.append('content-type','application/json');
+	this._http.post('/api/mappingdelete', JSON.stringify(model), {headers:headers})
+    	.subscribe(data => {
+			//if(data !=null){
+
+				this.getIndicateur();
+					
+ 				console.log("=>deleted " );
+			//}
+                
+            	});
+	this.getSelectedNode(cl.id, cl.name);
+	}
+	
+}
+
+refresh(){
+		this.ClassificationFi = null;
+		this.getDataFiliale();
 }
 }

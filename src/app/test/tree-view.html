@@ -73,7 +73,7 @@
 				  </mat-progress-bar>
 	</div>
 	<div  class="col-md-6" *ngIf="ClassificationFi?.length > 0" style=" padding-left: 30px;">
-            <h3 class="card-header text-left">Données Filiale</h3>
+            <h3 class="card-header text-left">Données Filiale</h3> <button class="btn btn-info" (click)="refresh()" >Actualiser</button>
 	    	
 	    <div class="z" style="overflow: auto; max-height:410px; min-width:550px;max-width:600px; float: left; clear: left;white-space: nowrap;">			
 
@@ -101,6 +101,9 @@
 				
 
                             </span>
+			    <span *ngIf="selectedId == cl.id && selectedName == cl.name" (click) = "deleteMappinglevel(cl)">
+				<img src="/assets/icons/delete.png" style=" width:14px; height:14px;"/>
+			    </span>
                         
                             <div *ngIf="cl.expanded" >
                                     
@@ -129,7 +132,9 @@
                                 		
 
                             			</span>
-			
+						<span (click) = "deleteMappinglevel(cl2)" *ngIf="selectedId == cl2.id && selectedName == cl2.name">
+							<img src="/assets/icons/delete.png" style=" width:14px; height:14px;"/>
+						</span>
 
 				<div *ngIf="cl2.expanded">
 					<!--INCLUDE MODELS IF EXISTS -->
@@ -256,7 +261,9 @@
                                 		
 
                             				</span>
-
+							<span (click) = "deleteMappinglevel(cl3)" *ngIf="selectedId == cl3.id && selectedName == cl3.name">
+								<img src="/assets/icons/delete.png" style=" width:14px; height:14px;"/>
+							</span>
                                                                 
                                                         
                                                         <div *ngIf="cl3.expanded">
@@ -388,6 +395,7 @@
 									<span *ngIf="idDragged == cl4.id;else other_span" >
 										<img src="/assets/icons/gmc.png" style=" width:14px; height:14px;"/>
 										<strong>{{cl4.name }}</strong>
+										
 									</span>
 										<ng-template #other_span>
 											<img src="/assets/icons/gmc.png" style=" width:14px; height:14px;"/>
@@ -395,6 +403,9 @@
                                         					</ng-template>
                                                                             
                                                                     </span> 
+								    <span (click) = "deleteMappinglevel(cl4)" *ngIf="selectedId == cl4.id && selectedName == cl4.name">
+											<img src="/assets/icons/delete.png" style=" width:14px; height:14px;"/>
+								    </span>
 								<!-- PRODUCTS -->
 							<div *ngIf="cl4.expanded">
                                                         

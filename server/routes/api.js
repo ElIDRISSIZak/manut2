@@ -1511,10 +1511,11 @@ router.post('/mappingtag', cors(), (req, res, next) => {
 										db.collection('mappingtag').insert({"idf": productToMap, "idtagf":idtagf, "idtaggmc":idtaggmc, "nametaggmc":nametaggmc,"user":userId, "structure": structure, "date": new Date(Date.now()).toISOString(), "statut":"provisoire" });
 											console.log("insertion");
 											inserted = true;
-											res.json(inserted);
+											
 
 									}					
-								});											
+								});
+								res.json(inserted);											
 							});																			
 						});
 					});								
@@ -1972,7 +1973,7 @@ router.get('/filiale/:structure', (req, res) => {
 			mappingkeys.push(mappingtag[a].idf + mappingtag[a].idtagf);
 		}
 		console.log("final", mappingkeys);
-		
+
 		var id1 = 0;
 		var id2 = 0;
 		var id3 = 0;
@@ -2131,12 +2132,13 @@ router.get('/filiale/:structure', (req, res) => {
 								techattr.value = item["TechnicalattributVALUE"];
 								techattr.unit = item["TechnicalattributUNIT"];
 								idattr1 = item["TechnicalattributID"];
-								if(mappingkeys.indexOf(product.id + techattr.id) > -1){
+								if(mappingkeys.indexOf(tech.id + techattr.id) > -1){
 									//console.log(mappingkeys);
 									//console.log(" find mapped ");
 									techattr.mapped = "true";
 									//console.log(product.mapped);		
 								}else{
+									///console.log("NotFound ",tech.id + techattr.id);	
 								}
 								//classification4.models.push(model);
 								tech.techattrs.push(techattr);
@@ -2248,7 +2250,7 @@ router.get('/filiale/:structure', (req, res) => {
 								techattr.unit = item["TechnicalattributUNIT"];
 								idattr2 = item["TechnicalattributID"];
 								
-								if(mappingkeys.indexOf(product.id + techattr.id) > -1){
+								if(mappingkeys.indexOf(tech.id + techattr.id) > -1){
 									
 									//console.log(mappingkeys);
 									//console.log(" find mapped ");
@@ -2355,13 +2357,13 @@ router.get('/filiale/:structure', (req, res) => {
 								techattr.value = item["TechnicalattributVALUE"];
 								techattr.unit = item["TechnicalattributUNIT"];
 								idattr3 = item["TechnicalattributID"];
-								if(mappingkeys.indexOf(product.id + techattr.id) > -1){
+								if(mappingkeys.indexOf(tech.id + techattr.id) > -1){
 									
 									//console.log(" find mapped ");
 									techattr.mapped = "true";
 									//console.log(product.mapped);		
 								}else{
-									
+									//console.log("NotFound ",tech.id + techattr.id);	
 								}
 								//classification4.models.push(model);
 								tech.techattrs.push(techattr);
@@ -2674,11 +2676,13 @@ router.post('/csv', cors(), (req, res, next) => {
 		});
 	}).then( function() {
 		    connection((db) => {
+					console.log("BASE D DONNES");
 				  db.collection(structure).remove({}, function(err, mapping) {
+					console.log("Structure", structure);
 					  cpt = 0;
 					  filiale.forEach((objf1) => {
 						  objf1.sorter = cpt;
-					  
+					  	console.log("insertONE", cpt);
 						  db.collection(structure).insert(objf1, {safe: true});
 						  cpt++;
   
