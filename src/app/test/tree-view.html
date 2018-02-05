@@ -66,14 +66,15 @@
   
 </ng-template>	
 <div class="row">       
-	<div  class="col-md-6" *ngIf="ClassificationFi == null" style=" padding-left: 30px;">
+	<div  class="col-md-6" *ngIf="ClassificationFi == null && currentUser.structure != manutan" style=" padding-left: 30px;">
 		<h3 class="example-h2">Chargement Données {{currentUser.structure}}</h3>
 			  
 				  <mat-progress-bar style="width:280px;" mode="indeterminate">
 				  </mat-progress-bar>
 	</div>
 	<div  class="col-md-6" *ngIf="ClassificationFi?.length > 0" style=" padding-left: 30px;">
-            <h3 class="card-header text-left">Données Filiale</h3> <button class="btn btn-info" (click)="refresh()" >Actualiser</button>
+            <h3 class="card-header text-left">Données Filiale <img (click)="refresh()" src="/assets/icons/Refresh.png" style=" width:14px; height:14px;"/></h3> 
+						
 	    	
 	    <div class="z" style="overflow: auto; max-height:410px; min-width:550px;max-width:600px; float: left; clear: left;white-space: nowrap;">			
 

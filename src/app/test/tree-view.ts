@@ -785,10 +785,10 @@ deleteMappinglevel(cl:any){
 		}
 	}
 	if((cl.classification)){
-		//console.log("=> click ",cl.name);
+		console.log("=> click ",cl.name);
 		if(cl.classification.length > 0){
 			for( let cl2 of cl.classification){
-							//console.log("=> lvl2 ",cl2.name);
+							console.log("=> lvl2 ",cl2.name);
 								if(cl2.models.length > 0){
 									for( let model of cl2.models){
 										if(model.products.length > 0){
@@ -797,16 +797,16 @@ deleteMappinglevel(cl:any){
 												if(prod.techattrs){
 													for( let att of prod.techattrs){
 														att.mapped = false;
-														//console.log("=> ALL ATT Non Mappés" );
+														console.log("=> ALL ATT Non Mappés" );
 													}
 												}
 											}
 										}	
                    							}
 								}		
-								else if(cl2.classification.length > 0){
+								 if(cl2.classification.length > 0){
 									for( let cl3 of cl2.classification){
-										//console.log("=> lvl3 ",cl3.name);
+										console.log("=> lvl3 ",cl3.name);
 										
 										if(cl3.models.length > 0){
 												
@@ -814,29 +814,29 @@ deleteMappinglevel(cl:any){
 											if(model.products.length > 0){
 												for( let prod of model.products){
                    											prod.mapped = false;	
-													//console.log("=> Mapp here",model.name);
+													console.log("=> Mapp here",model.name);
 													if(prod.techattrs){
 																for( let att of prod.techattrs){
 																	att.mapped = false;
-																	//console.log("=> ALL ATT Non Mappés" );
+																	console.log("=> ALL ATT Non Mappés" );
 																}
 													}
 												}
 											}	
                    									}
-										}else if(cl3.classification.length > 0){
+										}if(cl3.classification.length > 0){
 											for( let cl4 of cl3.classification){
-												//console.log("=> lvl4 ",cl4.name);
+												console.log("=> lvl4 ",cl4.name);
 											if(cl4.models.length > 0){
 												for( let model of cl4.models){
 													if(model.products.length > 0){
 														for( let prod of model.products){
                    													prod.mapped = false;
-															//console.log("=> HERE ");
+															console.log("=> HERE ");
 															if(prod.techattrs){
 																for( let att of prod.techattrs){
 																	att.mapped = false;
-																	//console.log("=> ALL ATT Non Mappés" );
+																	console.log("=> ALL ATT Non Mappés" );
 																}
 															}
 														}

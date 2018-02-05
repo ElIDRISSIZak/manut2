@@ -1,150 +1,321 @@
+​
 
 <div class="row">
 
-<nav class="navbar navbar-default">
-                    <div class="container-fluid">
-                        <div class="navbar-header">
-                        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-                            <ul class="nav navbar-nav">
-                                <li><a href="#" (click) = "uploadpage()">Upload</a></li>
-                                <li class="active"><a a href="#" (click) = "users()">Users</a></li>  
-                                <li class="active"><a a href="#" (click) = "fililale()">Fililale</a></li>
-                                <li class="active"><a a href="#" (click) = "others()">others</a></li>           
-                             </ul>
-                        </div>
-                        </div>
-                    </div>
-                </nav>
-                <div class="container">
-                    <div class="row">
-                        <div class="col-md-4">
-                            <form>
-                                <div class="form-group">
-                                    <label for="multiple">Multiple</label>
-                                    <input type="file" class="form-control" name="multiple" ng2FileSelect [uploader]="uploader" multiple  />
-                                </div>
-                               <!-- <div class="form-group">
-                                    <label for="single">single</label>
-                                    <input type="file" class="form-control" name="single" ng2FileSelect [uploader]="uploader" />                                  
-                                </div> -->           
-                            </form>
-                        </div>
-                        <div class="col-md-8" >
-                            <h3>File Upload</h3>
-                            Nombre de fichiers: {{ uploader?.queue?.length }}
+​
 
-                            <table class="table">
-                                <thead>
-                                <tr>
-                                    <th width="50%">Name</th>
-                                    <th>Size</th>
-                                    <th>Progress</th>
-                                    <th>Status</th>
-                                    <th>Actions</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                <tr *ngFor="let item of uploader.queue">
-                                    <td><strong>{{ item.file.name }}</strong></td>
-                                    <td nowrap>{{ item.file.size/1024/1024 | number:'.2' }} MB</td>
-                                    <td>
-                                        <div class="progress" style="margin-bottom: 0;">
-                                            <div class="progress-bar" role="progressbar" [ngStyle]="{ 'width': item.progress + '%' }"></div>
-                                        </div>
-                                    </td>
-                                    <td class="text-center">
-                                        <span *ngIf="item.isSuccess"><i class="glyphicon glyphicon-ok"></i></span>
-                                        <span *ngIf="item.isCancel"><i class="glyphicon glyphicon-ban-circle"></i></span>
-                                        <span *ngIf="item.isError"><i class="glyphicon glyphicon-remove"></i></span>
-                                    </td>
-                                    <td nowrap>
-                                        <button type="button" class="btn btn-success btn-xs"
-                                                (click)="upload(item)" [disabled]="item.isReady || item.isUploading || item.isSuccess">
-                                            <span class="glyphicon glyphicon-upload"></span> Upload
-                                        </button>
-                                        <button type="button" class="btn btn-warning btn-xs"
-                                                (click)="item.cancel()" [disabled]="!item.isUploading">
-                                            <span class="glyphicon glyphicon-ban-circle"></span> Cancel
-                                        </button>
-                                        <button type="button" class="btn btn-danger btn-xs"
-                                                (click)="item.remove()">
-                                            <span class="glyphicon glyphicon-trash"></span> Remove
-                                        </button>
-                                    </td>
-                                </tr>
-                                </tbody>
-                            </table>
+	<nav class="navbar navbar-default">
 
-                            <div>
-                                <div>
-                                    Queue progress:
-                                    <div class="progress" style="">
-                                        <div class="progress-bar" role="progressbar" [ngStyle]="{ 'width': uploader.progress + '%' }"></div>
-                                    </div>
-                                </div>
-                                <button type="button" class="btn btn-success btn-s"
-                                        (click)="uploadAll()" [disabled]="!uploader.getNotUploadedItems().length">
-                                    <span class="glyphicon glyphicon-upload"></span> Upload all
-                                </button>
-                                <button type="button" class="btn btn-warning btn-s"
-                                        (click)="uploader.cancelAll()" [disabled]="!uploader.isUploading">
-                                    <span class="glyphicon glyphicon-ban-circle"></span> Cancel all
-                                </button>
-                                <button type="button" class="btn btn-danger btn-s"
-                                        (click)="uploader.clearQueue()" [disabled]="!uploader.queue.length">
-                                    <span class="glyphicon glyphicon-trash"></span> Remove all
-                                </button>
-				<br>
-				<button type="button" class="btn btn-info btn-md"
-                                        (click)="insertion()" [disabled]="!uploader.queue.length">
-                                     Lancer l'integration
-                                </button>	
-                            </div>
-                        </div>
-                    </div>
-                         
-                        <div class="task-list">
-                            <h1>Liste des utilisateurs</h1>
-                            <form class="well">
-                              <div class="form-group">
-                                Username: <input type="text" class="form-group"  name="username" [(ngModel)] = "username" placeholder="Username" required size="130px"> <br>
-                               <span *ngIf="currentUser.structure == 'manutan';else other_input"> Structure : <input  type="text" class="form-group"  name="structure" [(ngModel)] = "structure" placeholder="Structure" required size="130px"></span><br>
-	<ng-template #other_input>
-        <span > Structure : <input type="text" class="form-group"  name="structure" [(ngModel)] = "structure" placeholder="{{currentUser.structure}}" required size="130px" disabled>
-	</span>	                                                	
-      </ng-template>
-                                Password : <input type="password" class="form-group"  name="password" [(ngModel)] = "password" placeholder="Password" required size="130px"> 
-                                <br><button type="button" class="btn btn-primary " (click) = "addUser()" size="130px" >Ajouter un utilisateur</button>
-                            </div>  
-                            </form>    
-                                  <table class="table">
-                                      <thead class="thead-inverse">
-                                        <tr>
-                                          <!--<th>-</th>-->
-                                          <th>Username</th>
-                                          <th >Structure</th>
-                                          <!--<th>Editer</th>-->                
-                                          <th>Supprimer</th>
-                                        </tr>
-                                      </thead>
-                                      <tbody>
-                                        <tr *ngFor="let user of userss">
-                                          <!--<th scope="row"><input type="checkbox"></th>-->
-                                          <td>{{user.username }}</td>
-                                          <td>{{user.structure}}</td>
-                                          <!--<td><button type="button" class="btn btn-success">Edit</button></td>-->
-                                          <td><button type="button" class="btn btn-danger" (click) = "deleteUser(user.username)" >X</button></td>
-                                        </tr>
-                                        
-                                      </tbody>
-                                    </table>
-                
-                        </div>
-                          <!-- fin container -->
+		<div class="container-fluid">
 
+			<div class="navbar-header">
 
+				<div class="collapse navbar-collapse"
 
-</div>
+					id="bs-example-navbar-collapse-1">
+
+					<ul class="nav navbar-nav">
+
+						<li *ngFor="let tab of tabs" [class.active]="tab.active"
+
+							(click)="selectTab(tab)"><a href="#">{{tab.title}}</a></li>
+
+					</ul>
+
+				</div>
+
+			</div>
+
+		</div>
+
+	</nav>
+
+	<div class="container">
+
+		<div class="row" *ngIf="isSelectedTab('Upload')">
+
+			<div class="col-md-4">
+
+				<form>
+
+					<div class="form-group">
+
+						<label for="multiple">Multiple</label> <input type="file"
+
+							class="form-control" name="multiple" ng2FileSelect
+
+							[uploader]="uploader" multiple />
+
+					</div>
+
+				</form>
+
+			</div>
+
+			<div class="col-md-8">
+
+				<h3>File Upload</h3>
+
+				Nombre de fichiers: {{ uploader?.queue?.length }}
+
+​
+
+				<table class="table">
+
+					<thead>
+
+						<tr>
+
+							<th width="50%">Name</th>
+
+							<th>Size</th>
+
+							<th>Progress</th>
+
+							<th>Status</th>
+
+							<th>Actions</th>
+
+						</tr>
+
+					</thead>
+
+					<tbody>
+
+						<tr *ngFor="let item of uploader.queue">
+
+							<td><strong>{{ item.file.name }}</strong></td>
+
+							<td nowrap>{{ item.file.size/1024/1024 | number:'.2' }} MB</td>
+
+							<td>
+
+								<div class="progress" style="margin-bottom: 0;">
+
+									<div class="progress-bar" role="progressbar"
+
+										[ngStyle]="{ 'width': item.progress + '%' }"></div>
+
+								</div>
+
+							</td>
+
+							<td class="text-center"><span *ngIf="item.isSuccess"><i
+
+									class="glyphicon glyphicon-ok"></i></span> <span *ngIf="item.isCancel"><i
+
+									class="glyphicon glyphicon-ban-circle"></i></span> <span
+
+								*ngIf="item.isError"><i
+
+									class="glyphicon glyphicon-remove"></i></span></td>
+
+							<td nowrap>
+
+								<button type="button" class="btn btn-success btn-xs"
+
+									(click)="upload(item)"
+
+									[disabled]="item.isReady || item.isUploading || item.isSuccess">
+
+									<span class="glyphicon glyphicon-upload"></span> Upload
+
+								</button>
+
+								<button type="button" class="btn btn-warning btn-xs"
+
+									(click)="item.cancel()" [disabled]="!item.isUploading">
+
+									<span class="glyphicon glyphicon-ban-circle"></span> Cancel
+
+								</button>
+
+								<button type="button" class="btn btn-danger btn-xs"
+
+									(click)="item.remove()">
+
+									<span class="glyphicon glyphicon-trash"></span> Remove
+
+								</button>
+
+							</td>
+
+						</tr>
+
+					</tbody>
+
+				</table>
+
+​
+
+				<div>
+
+					<div>
+
+						Queue progress:
+
+						<div class="progress" style="">
+
+							<div class="progress-bar" role="progressbar"
+
+								[ngStyle]="{ 'width': uploader.progress + '%' }"></div>
+
+						</div>
+
+					</div>
+
+					<button type="button" class="btn btn-success btn-s"
+
+						(click)="uploadAll()"
+
+						[disabled]="!uploader.getNotUploadedItems().length">
+
+						<span class="glyphicon glyphicon-upload"></span> Upload all
+
+					</button>
+
+					<button type="button" class="btn btn-warning btn-s"
+
+						(click)="uploader.cancelAll()" [disabled]="!uploader.isUploading">
+
+						<span class="glyphicon glyphicon-ban-circle"></span> Cancel all
+
+					</button>
+
+					<button type="button" class="btn btn-danger btn-s"
+
+						(click)="uploader.clearQueue()"
+
+						[disabled]="!uploader.queue.length">
+
+						<span class="glyphicon glyphicon-trash"></span> Remove all
+
+					</button>
+
+					<br>
+
+					<button type="button" class="btn btn-info btn-md"
+
+						(click)="insertion()" [disabled]="!uploader.queue.length">
+
+						Lancer l'integration</button>
+
+				</div>
+
+			</div>
+
+		</div>
+
+​
+
+		<div class="task-list" *ngIf="isSelectedTab('Users')">
+
+			<h1>Liste des utilisateurs</h1>
+
+			<form class="well">
+
+				<div class="form-group">
+
+					Username: <input type="text" class="form-group" name="username"
+
+						[(ngModel)]="username" placeholder="Username" required
+
+						size="130px"> <br> <span
+
+						*ngIf="currentUser.structure == 'manutan';else other_input">
+
+						Structure : <input type="text" class="form-group" name="structure"
+
+						[(ngModel)]="structure" placeholder="Structure" required
+
+						size="130px">
+
+					</span><br>
+
+					<ng-template #other_input> <span> Structure :
+
+						<input type="text" class="form-group" name="structure"
+
+						[(ngModel)]="structure" placeholder="{{currentUser.structure}}"
+
+						required size="130px" disabled>
+
+					</span> </ng-template>
+
+					Password : <input type="password" class="form-group"
+
+						name="password" [(ngModel)]="password" placeholder="Password"
+
+						required size="130px"> <br>
+
+					<button type="button" class="btn btn-primary " (click)="addUser()"
+
+						size="130px">Ajouter un utilisateur</button>
+
+				</div>
+
+			</form>
+
+			<table class="table">
+
+				<thead class="thead-inverse">
+
+					<tr>
+
+						<!--<th>-</th>-->
+
+						<th>Username</th>
+
+						<th>Structure</th>
+
+						<!--<th>Editer</th>-->
+
+						<th>Supprimer</th>
+
+					</tr>
+
+				</thead>
+
+				<tbody>
+
+					<tr *ngFor="let user of userss">
+
+						<!--<th scope="row"><input type="checkbox"></th>-->
+
+						<td>{{user.username }}</td>
+
+						<td>{{user.structure}}</td>
+
+						<!--<td><button type="button" class="btn btn-success">Edit</button></td>-->
+
+						<td><button type="button" class="btn btn-danger"
+
+								(click)="deleteUser(user.username)">X</button></td>
+
+					</tr>
+
+​
+
+				</tbody>
+
+			</table>
+
+​
+
+		</div>
+
+		<!-- fin container -->
+
+​
+
+​
+
+​
+
+	</div>
+
 	<!--<button type="button" class="btn btn-default" (click) = "backClicked()">
-       	<span class="glyphicon glyphicon-arrow-left"></span> Back
+
+    	<span class="glyphicon glyphicon-arrow-left"></span> Back
+
 	</button>-->
